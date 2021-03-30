@@ -107,9 +107,7 @@ def segments_tests(etat, sommet, version):
         lst -> List[Tuple(Tuple, Tuple)]
     """
 
-    i_sommet, j_sommet = sommet
-    voisins = [(i_sommet + 1, j_sommet), (i_sommet - 1, j_sommet),
-               (i_sommet, j_sommet + 1), (i_sommet, j_sommet - 1)]
+    voisins = fonction_voisins(sommet)
     lst_traces = []
     lst_interdits = []
     lst_vierges = []
@@ -131,6 +129,11 @@ def segments_tests(etat, sommet, version):
     if version == "vierges":
         return lst_vierges
 
+def fonction_voisins(sommet):
+    i_sommet, j_sommet = sommet
+    voisins = [(i_sommet + 1, j_sommet), (i_sommet - 1, j_sommet),
+               (i_sommet, j_sommet + 1), (i_sommet, j_sommet - 1)]
+    return voisins
 
 def segments_testsV2(etat, sommet, fonction):
     """Renvoie la liste des segments tracés/interdits/vierges adjacents
@@ -139,12 +142,10 @@ def segments_testsV2(etat, sommet, fonction):
         etat    -> Dict: {((0, 1), (1, 1)): -1, ...}
         sommet  -> Tuple: (2, 1)
     Return:
-        lst -> List[Tuple(Tuple, Tuple
+        lst -> List[Tuple(Tuple, Tuple)]
             : [((1, 1), (2, 1)), ((1, 1), (1, 2))]
     """
-    i_sommet, j_sommet = sommet
-    voisins = [(i_sommet + 1, j_sommet), (i_sommet - 1, j_sommet),
-               (i_sommet, j_sommet + 1), (i_sommet, j_sommet - 1)]
+    voisins = fonction_voisins(sommet)
     lst = []
 
     for voisin in voisins:
@@ -168,7 +169,7 @@ def statut_case(indices, etat, case):
     else:
         i_case, j_case = case
         sommet_autour = [(i_case, j_case), (i_case, j_case + 1),
-                         (i_case + 1, j_case), (i_case, j_case)]
+                         (i_case + 1, j_case), (i_case + 1, j_case + 1)]
         nb_segment = 0
         for i in range(len(sommet_autour)):
             seg = (sommet_autour[i - 1], sommet_autour[i])
@@ -178,8 +179,30 @@ def statut_case(indices, etat, case):
 
 # Tache 2 - CONDITIONS DE VICTOIRE
 
-def partie_finie(indices):
-    pass
+"""def partie_finie(indices):
+    if statut_case(indices, etat, case) == 0:"""
+    
+def longueur_boucle(etat, seg):
+    i_seg, j_seg = seg
+    depart = i_seg
+    precedent, courant = i_seg, j_seg
+    nb_seg = 0
+    while courant != precedent:
+        voisins = fonction_voisins(courant)
+        cmpt = 0
+        for voisin in voisins:
+            if est_trace(etat, (voisin, courant)) == True:
+                cmpt += 1
+                nb_seg += 1
+                if voisin != precedent:
+                    adjacent = voisin
+        if cmpt != 2:
+            return None
+        else:
+            precedent = courant
+            courant = adjacent
+    return nb_seg
+        
 
 
 
@@ -211,6 +234,7 @@ etat = {((0, 1), (1, 1)): -1,
         ((2, 1), (1, 2)): -1
         }
 
+print(longueur_boucle(etat, ((1, 0),(1, 1))))
 print(segments_testsV2(etat, (1, 1), est_trace))
 print(segments_testsV2(etat, (1, 1), est_interdit))
 print(segments_testsV2(etat, (1, 1), est_vierge))
