@@ -59,38 +59,44 @@ def fichier_vers_liste(nom_fichier):
     return indices
 
 
-def est_trace(etat, segment):
-    if est_vierge(etat, segment) == False:
-        if etat[segment] == 1:
-            return True
+def est_trace(etat, seg):
+    i_seg, j_seg = seg
+    seg_inv = j_seg, i_seg
+    if seg in etat and etat[seg] == 1:
+        return True
+    if seg_inv in etat and etat[seg_inv] == 1:
+        return True
     return False
 
-def est_interdit(etat, segment):
-    if est_vierge(etat, segment) == False:
-        if etat[segment] == -1:
-            return True
+def est_interdit(etat, seg):
+    i_seg, j_seg = seg
+    seg_inv = j_seg, i_seg
+    if seg in etat and etat[seg] == -1:
+        return True
+    if seg_inv in etat and etat[seg_inv] == -1:
+        return True
     return False
 
-def est_vierge(etat, segment):
-    if segment in etat:
+def est_vierge(etat, seg):
+    i_seg, j_seg = seg
+    seg_inv = j_seg, i_seg
+    if seg in etat or seg_inv in etat:
         return False
     return True
 
+def tracer_segment(etat, seg):
+    etat[seg] = 1
 
-def tracer_segment(etat, segment):
-    etat[segment] = 1
+def interdire_segment(etat, seg):
+    etat[seg] = -1
 
-def interdire_segment(etat, segment):
-    etat[segment] = -1
-
-def effacer_segment(etat, segment):
+def effacer_segment(etat, seg):
     """
     Modifiant etat afin de représenter le fait que segment est maintenant vierge.
     Attention, effacer un segment revient à retirer de l’information
     du dictionnaire etat.
     """
-    etat.pop(segment)
-
+    etat.pop(seg)
 
 def segments_tests(etat, sommet, version):
     """Renvoie la liste des segments interdits adjacents à sommet dans etat
@@ -140,13 +146,11 @@ def segments_testsV2(etat, sommet, fonction):
     voisins = [(i_sommet + 1, j_sommet), (i_sommet - 1, j_sommet),
                (i_sommet, j_sommet + 1), (i_sommet, j_sommet - 1)]
     lst = []
-    for segment in etat:
-        for voisin in voisins:
-            if segment == (voisin[1], voisin[0]):
-                voisin = (voisin[1], voisin[0])
-            if fonction(etat, (voisin, sommet)):
-                lst.append((sommet, voisin))
-        return lst
+
+    for voisin in voisins:
+        if fonction(etat, (voisin, sommet)):
+            lst.append((sommet, voisin))
+    return lst
 
 
 def statut_case(indices, etat, case):
@@ -168,17 +172,17 @@ def statut_case(indices, etat, case):
         nb_segment = 0
         for i in range(len(sommet_autour)):
             seg = (sommet_autour[i - 1], sommet_autour[i])
-            seg_inv = (sommet_autour[i], sommet_autour[i - 1])
-            # l'une des deux lignes ne modifie pas la valeur de nb_segment
             nb_segment += est_trace(etat, seg) + est_interdit(etat, seg)
-            nb_segment += est_trace(etat, seg_inv) + est_interdit(etat, seg_inv)
         return indices[case[0]][case[1]] - nb_segment
 
 
 # Tache 2 - CONDITIONS DE VICTOIRE
 
-def partie_finie():
+def partie_finie(indices):
     pass
+
+
+
 
 
 
@@ -206,14 +210,16 @@ etat = {((0, 1), (1, 1)): -1,
         ((2, 1), (1, 1)): 1,
         ((2, 1), (1, 2)): -1
         }
-# print(segments_testsV2(etat, (1, 1), est_trace))
-# print(segments_testsV2(etat, (1, 1), est_interdit))
-# print(segments_testsV2(etat, (1, 1), est_vierge))
-# print("FIN DE ZONE DE TEST")
+
+print(segments_testsV2(etat, (1, 1), est_trace))
+print(segments_testsV2(etat, (1, 1), est_interdit))
+print(segments_testsV2(etat, (1, 1), est_vierge))
+print("FIN DE ZONE DE TEST")
 
 
 # Zone appel de fonctions
 
 nom_fichier = saisie_nom_fichier(sys.argv)
 indices = fichier_vers_liste(nom_fichier)
+print(indices)
 print(statut_case(indices, etat, ((1, 1))))
