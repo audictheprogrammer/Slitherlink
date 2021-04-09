@@ -169,33 +169,42 @@ def statut_case(indices, etat, case):
     else:
         i_case, j_case = case
         sommet_autour = [(i_case, j_case), (i_case, j_case + 1),
-                         (i_case + 1, j_case), (i_case + 1, j_case + 1)]
-        nb_segment = 0
+                         (i_case + 1, j_case + 1), (i_case + 1, j_case)]
+        nb_traces = 0
+        nb_inter = 0
         for i in range(len(sommet_autour)):
             seg = (sommet_autour[i - 1], sommet_autour[i])
-            nb_segment += est_trace(etat, seg) + est_interdit(etat, seg)
-        return indices[case[0]][case[1]] - nb_segment
+            nb_traces += est_trace(etat, seg)
+            nb_inter += est_interdit(etat, seg)
+        if nb_traces == indices[case[0]][case[1]]:
+            return 0
+        if nb_traces < indices[case[0]][case[1]]:
+            return 1
+        if nb_traces + nb_inter > indices[case[0]][case[1]]:
+            return -1
+        
 
 
 # Tache 2 - CONDITIONS DE VICTOIRE
 
-"""def partie_finie(indices):
-    if statut_case(indices, etat, case) == 0:"""
+def partie_finie(indices):
+    if statut_case(indices, etat, case) == 0:
+        return True
     
 def longueur_boucle(etat, seg):
     i_seg, j_seg = seg
     depart = i_seg
     precedent, courant = i_seg, j_seg
-    nb_seg = 0
-    while courant != precedent:
+    nb_seg = 1
+    while courant != depart:
         voisins = fonction_voisins(courant)
         cmpt = 0
         for voisin in voisins:
             if est_trace(etat, (voisin, courant)) == True:
                 cmpt += 1
-                nb_seg += 1
                 if voisin != precedent:
                     adjacent = voisin
+                    nb_seg += 1
         if cmpt != 2:
             return None
         else:
@@ -233,8 +242,23 @@ etat = {((0, 1), (1, 1)): -1,
         ((2, 1), (1, 1)): 1,
         ((2, 1), (1, 2)): -1
         }
+etat2 = {((0, 0), (0, 1)): 1,
+         ((0, 1), (1, 1)): 1,
+         ((1, 1), (1, 2)): 1,
+         ((1, 2), (2, 2)): 1,
+         ((2, 2), (2, 1)): 1,
+         ((2, 1), (3, 1)): 1,
+         ((3, 1), (3, 0)): 1,
+         ((3, 0), (2, 0)): 1,
+         ((2, 0), (1, 0)): 1,
+         ((1, 0), (0, 0)): 1}
 
-print(longueur_boucle(etat, ((1, 0),(1, 1))))
+etat3 = {((1, 1), (1, 2)): 1,
+         ((1, 2), (2, 2)): 1,
+         ((2, 2), (2, 1)): 1,
+         ((2, 1), (1, 1)): 0}
+
+print(longueur_boucle(etat2, ((0, 0),(0, 1))))
 print(segments_testsV2(etat, (1, 1), est_trace))
 print(segments_testsV2(etat, (1, 1), est_interdit))
 print(segments_testsV2(etat, (1, 1), est_vierge))
@@ -246,4 +270,4 @@ print("FIN DE ZONE DE TEST")
 nom_fichier = saisie_nom_fichier(sys.argv)
 indices = fichier_vers_liste(nom_fichier)
 print(indices)
-print(statut_case(indices, etat, ((1, 1))))
+print(statut_case(indices, etat3, ((1, 1))))
