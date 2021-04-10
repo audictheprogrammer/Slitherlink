@@ -1,4 +1,4 @@
-# import fltk
+import fltk
 import sys
 # Slitherlink game by Audic XU the best and Damien BENAMARI the almost best.
 
@@ -135,6 +135,7 @@ def fonction_voisins(sommet):
                (i_sommet, j_sommet + 1), (i_sommet, j_sommet - 1)]
     return voisins
 
+
 def segments_testsV2(etat, sommet, fonction):
     """Renvoie la liste des segments tracés/interdits/vierges adjacents
      à sommet dans etat.
@@ -182,15 +183,26 @@ def statut_case(indices, etat, case):
             return 1
         if nb_traces + nb_inter > indices[case[0]][case[1]]:
             return -1
-        
+
 
 
 # Tache 2 - CONDITIONS DE VICTOIRE
 
-def partie_finie(indices):
-    if statut_case(indices, etat, case) == 0:
+def partie_finie(indices, etat):
+    for i in range(len(indices) - 1):
+        for j in range(len(indices)- 1):
+            case = i, j
+            res = statut_case(indices, etat, case)
+            if res is not None and res != 0 :
+                print(case)
+                return False
+    segment_depart = ((0, 0), (0, 1))
+    if longueur_boucle(etat, segment_depart) is not None:
         return True
-    
+    else:
+        return False
+
+
 def longueur_boucle(etat, seg):
     i_seg, j_seg = seg
     depart = i_seg
@@ -211,7 +223,81 @@ def longueur_boucle(etat, seg):
             precedent = courant
             courant = adjacent
     return nb_seg
-        
+
+
+# Tache 3 - INTERFACE GRAPHIQUE
+
+
+def Slitherlink(indices):
+    taille_case = 75
+    taille_marge = 40
+    initialisation_fenetre(indices, taille_case, taille_marge)
+    Jouer = True
+    while Jouer:
+        ev = fltk.donne_ev()
+        tev = fltk.type_ev(ev)
+        if tev == "ClicGauche":
+            abs, ord = fltk.abscisse(ev), fltk.ordonnee(ev)
+            indique_segment(abs, ord, taille_case, taille_marge)
+        elif tev == "ClicDroit" or tev == "Quitte":
+            Jouer = False
+        fltk.mise_a_jour()
+
+def indique_segment(x, y, taille_case, taille_marge):
+    for i in range(len(indices) + 1):
+        for j in range(len(indices[0]) + 1):
+            sommet_x = taille_marge + taille_case * j
+            sommet_y = taille_marge + taille_case * i
+            decalage_x = sommet_x + 0.2 * taille_case
+            decalage_y = sommet_y + 0.2 * taille_case
+            if sommet_x - decalage_x <= x <= sommet_x + decalage_x and\
+               sommet_y - decalage_y <= y <= sommet_x + decalage_y:
+               return (i, j)
+
+
+
+
+
+
+
+
+def initialisation_fenetre(indices, taille_case, taille_marge):
+    """Initialise la fenetre du jeu
+    Paramètres:
+        indices -> List[List], permet de connaitre la taille de la grille.
+        taille_case -> Int
+        taille_marge -> Int
+    """
+    largeur = len(indices) * taille_case + 2 * taille_marge
+    hauteur = len(indices) * taille_case + 2 * taille_marge
+    fltk.cree_fenetre(largeur, hauteur)
+    fltk.rectangle(taille_marge, taille_marge,
+                   largeur - taille_marge, hauteur - taille_marge)
+    trace_cases(indices, taille_case, taille_marge)
+    return None
+
+def trace_cases(indices, taille_case, taille_marge):
+    """Fonction auxiliaire permettant de tracer les cases
+    Paramètres:
+        indices -> List[List], permet de connaitre la taille de la grille.
+        taille_case -> Int
+        taille_marge -> Int
+    """
+    for i in range(len(indices) + 1):
+        for j in range(len(indices[0]) + 1):
+            fltk.cercle(taille_marge + i * taille_case,
+                        taille_marge + j * taille_case,
+                        5)
+            if i != 0 and j != 0:
+                fltk.rectangle(taille_marge + i * taille_case,
+                               taille_marge + j *taille_case,
+                               taille_marge + (i -1) * taille_case,
+                               taille_marge + (j - 1) * taille_case)
+    return None
+
+
+
+
 
 
 
@@ -236,38 +322,54 @@ effacer_segment(etat, ((0, 0), (0, 1)))
 print(etat)
 """
 
-etat = {((0, 1), (1, 1)): -1,
+"""etat = {((0, 1), (1, 1)): -1,
         ((1, 0), (1, 1)): -1,
         ((1, 2), (1, 1)): 1,
         ((2, 1), (1, 1)): 1,
-        ((2, 1), (1, 2)): -1
-        }
-etat2 = {((0, 0), (0, 1)): 1,
-         ((0, 1), (1, 1)): 1,
-         ((1, 1), (1, 2)): 1,
+        ((2, 1), (1, 2)): -1}"""
+
+"""etat3 = {((1, 1), (1, 2)): 1,
          ((1, 2), (2, 2)): 1,
          ((2, 2), (2, 1)): 1,
-         ((2, 1), (3, 1)): 1,
-         ((3, 1), (3, 0)): 1,
-         ((3, 0), (2, 0)): 1,
-         ((2, 0), (1, 0)): 1,
-         ((1, 0), (0, 0)): 1}
+         ((2, 1), (1, 1)): 0}"""
 
-etat3 = {((1, 1), (1, 2)): 1,
-         ((1, 2), (2, 2)): 1,
-         ((2, 2), (2, 1)): 1,
-         ((2, 1), (1, 1)): 0}
+# Test pour partie_finie
+etat = {((0, 0), (0, 1)): 1,
+        ((0, 1), (1, 1)): 1,
+        ((1, 1), (1, 2)): 1,
+        ((1, 2), (2, 2)): 1,
+        ((2, 2), (2, 1)): 1,
+        ((2, 1), (3, 1)): 1,
+        ((3, 1), (3, 0)): 1,
+        ((3, 0), (2, 0)): 1,
+        ((2, 0), (1, 0)): 1,
+        ((1, 0), (0, 0)): 1}
 
-print(longueur_boucle(etat2, ((0, 0),(0, 1))))
+indices = [[3, 2, None, None, 0, None],
+           [1 , 3 , 1, None, 0, None],
+           [3, 2, None, None, None, None],
+           [None, None, None, None, 0, 1],
+           [None, None, None, None, 0, 1],
+           [None, None, None, None, 0, 1]]
+
+
+
+"""print(longueur_boucle(etat2, ((0, 0),(0, 1))))
 print(segments_testsV2(etat, (1, 1), est_trace))
 print(segments_testsV2(etat, (1, 1), est_interdit))
-print(segments_testsV2(etat, (1, 1), est_vierge))
+print(segments_testsV2(etat, (1, 1), est_vierge))"""
+# ne marche pas completement
+print(partie_finie(indices, etat))
 print("FIN DE ZONE DE TEST")
+
 
 
 # Zone appel de fonctions
 
-nom_fichier = saisie_nom_fichier(sys.argv)
+"""nom_fichier = saisie_nom_fichier(sys.argv)
 indices = fichier_vers_liste(nom_fichier)
 print(indices)
-print(statut_case(indices, etat3, ((1, 1))))
+print(statut_case(indices, etat3, ((1, 1))))"""
+
+
+Slitherlink(indices)
