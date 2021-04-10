@@ -237,8 +237,8 @@ def Slitherlink(indices):
         ev = fltk.donne_ev()
         tev = fltk.type_ev(ev)
         if tev == "ClicGauche":
-            abs, ord = fltk.abscisse(ev), fltk.ordonnee(ev)
-            indique_segment(abs, ord, taille_case, taille_marge)
+            absc, ordo = fltk.abscisse(ev), fltk.ordonnee(ev)
+            indique_segment(absc, ordo, taille_case, taille_marge)
         elif tev == "ClicDroit" or tev == "Quitte":
             Jouer = False
         fltk.mise_a_jour()
@@ -271,8 +271,8 @@ def initialisation_fenetre(indices, taille_case, taille_marge):
     largeur = len(indices) * taille_case + 2 * taille_marge
     hauteur = len(indices) * taille_case + 2 * taille_marge
     fltk.cree_fenetre(largeur, hauteur)
-    fltk.rectangle(taille_marge, taille_marge,
-                   largeur - taille_marge, hauteur - taille_marge)
+    """fltk.rectangle(taille_marge, taille_marge,
+                   largeur - taille_marge, hauteur - taille_marge)"""
     trace_cases(indices, taille_case, taille_marge)
     return None
 
@@ -288,11 +288,11 @@ def trace_cases(indices, taille_case, taille_marge):
             fltk.cercle(taille_marge + i * taille_case,
                         taille_marge + j * taille_case,
                         5)
-            if i != 0 and j != 0:
+            """if i != 0 and j != 0:
                 fltk.rectangle(taille_marge + i * taille_case,
                                taille_marge + j *taille_case,
                                taille_marge + (i -1) * taille_case,
-                               taille_marge + (j - 1) * taille_case)
+                               taille_marge + (j - 1) * taille_case)"""
     return None
 
 
