@@ -377,26 +377,28 @@ print(statut_case(indices, etat3, ((1, 1))))"""
 #boucle principale
 
 if __name__ == "__main__":
+    fltk.cree_fenetre(800, 600)
+    fltk.image(0, 0, "fond_d'ecran_menu.gif", 
+               ancrage = "nw", tag = "fond_menu")
+    fltk.image(300, 295, "bouton_nouvelle_partie.gif", 
+               ancrage = "nw", tag = "new_partie")
+    fltk.image(300, 455, "bouton_charger_partie.gif", 
+               ancrage = "nw", tag = "charger_partie") 
     menu = True
     while menu:
-        fltk.cree_fenetre(800, 600)
-        fltk.image(0, 0, "fond_d'ecran_menu.gif", 
-                   ancrage = "nw", tag = "fond_menu")
-        fltk.image(300, 295, "bouton_nouvelle_partie.gif", 
-                   ancrage = "nw", tag = "new_partie")
-        fltk.image(300, 455, "bouton_charger_partie.gif", 
-                   ancrage = "nw", tag = "charger_partie")        
-        fltk.attend_ev()
+      
         ev = fltk.donne_ev()
         tev = fltk.type_ev(ev)
         if tev == "ClicGauche":
-            if abscisse(ev) >= 300 and abscisse(ev) <= 500:
-                if ordonnee(ev) >= 295 and ordonnee(ev) <= 395:
+            if fltk.abscisse(ev) >= 300 and fltk.abscisse(ev) <= 500:
+                if fltk.ordonnee(ev) >= 295 and fltk.ordonnee(ev) <= 395:
                     menu = False
                     choix_grille = True
-                if ordonne(ev) >= 455 and ordonnee(ev) <= 555:
+                if fltk.ordonnee(ev) >= 455 and fltk.ordonnee(ev) <= 555:
                     menu = False
                     charger_grille = True
-        fltk.ferme_fenetre()
+        fltk.mise_a_jour()
+    fltk.ferme_fenetre()
+    
     
     
