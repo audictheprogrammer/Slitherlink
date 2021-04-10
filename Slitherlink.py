@@ -380,25 +380,40 @@ if __name__ == "__main__":
     fltk.cree_fenetre(800, 600)
     fltk.image(0, 0, "fond_d'ecran_menu.gif", 
                ancrage = "nw", tag = "fond_menu")
-    fltk.image(300, 295, "bouton_nouvelle_partie.gif", 
+    fltk.image(300, 195, "bouton_nouvelle_partie.gif", 
                ancrage = "nw", tag = "new_partie")
-    fltk.image(300, 455, "bouton_charger_partie.gif", 
+    fltk.image(300, 330, "bouton_charger_partie.gif", 
                ancrage = "nw", tag = "charger_partie") 
+    fltk.image(300, 465, "bouton_quitter.gif", 
+               ancrage = "nw", tag = "quitter") 
     menu = True
+    choix_grille = False
+    charger_grille = False
     while menu:
       
         ev = fltk.donne_ev()
         tev = fltk.type_ev(ev)
         if tev == "ClicGauche":
             if fltk.abscisse(ev) >= 300 and fltk.abscisse(ev) <= 500:
-                if fltk.ordonnee(ev) >= 295 and fltk.ordonnee(ev) <= 395:
+                if fltk.ordonnee(ev) >= 195 and fltk.ordonnee(ev) <= 295:
                     menu = False
                     choix_grille = True
-                if fltk.ordonnee(ev) >= 455 and fltk.ordonnee(ev) <= 555:
+                if fltk.ordonnee(ev) >= 330 and fltk.ordonnee(ev) <= 430:
                     menu = False
                     charger_grille = True
+                if fltk.ordonnee(ev) >= 465 and fltk.ordonnee(ev) <= 565:
+                    break
         fltk.mise_a_jour()
     fltk.ferme_fenetre()
+    if choix_grille:
+        fltk.cree_fenetre(800, 600)
+        fltk.image(0, 0, "fond_d'ecran.gif",
+                   ancrage = "nw", tag = "fond")
+        fltk.image(300, 650, "bouton_quitter.gif", 
+                   ancrage = "nw", tag = "quitter")
+    while choix_grille:
+   
+        
     
     
     
