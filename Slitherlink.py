@@ -261,11 +261,19 @@ def Slitherlink():
                 choix_grille = False
                 menu = True
         if charger_grille:
-            menu = False
-            slitherlink = False
-            indices, etat = fonction_charger_grille()
+            charger = fonction_charger_grille()
+            if charger == "menu":
+                charger_grille = False
+                menu = True
+            else:
+                charger_grille = False
+                partie = True
+                fltk.ferme_fenetre()
+        if partie:
+            jouer = fonction_jeu(fichier_vers_liste(charger), {})
+            """indices, etat = fonction_charger_grille()
             fltk.ferme_fenetre()
-            fonction_jeu(indices, etat)
+            fonction_jeu(indices, etat)"""
 
 def fonction_menu():
     """Affiche un menu et renvoie le choix de l'utilisateur
@@ -337,11 +345,40 @@ def fonction_choix_grille():
 
 
 def fonction_charger_grille():
-    fltk.texte(100, 100, "saisir sur terminal")
-    nom_fichier = saisie_nom_fichier(sys.argv)
-    indices = fichier_vers_liste(nom_fichier)
-    etat = {}
-    return (indices, etat)
+
+    fltk.efface_tout()
+    fltk.mise_a_jour()
+    fltk.image(0, 0, "fond_d'ecran.gif",
+               ancrage = "nw", tag = "fond")
+    fltk.image(100, 490, "bouton_menu.gif",
+               ancrage = "nw", tag = "menu")
+    fltk.image(500, 490, "bouton_valider.gif",
+               ancrage = "nw", tag = "menu")
+    fltk.rectangle(100, 270, 700, 330, couleur = "black", 
+                   remplissage = "white", tag = "barre_blanche")
+    fltk.texte(75, 70, "Saisissez le nom du fichier :", couleur = "#4CFF00",
+               police = "sketchy in snow", taille = "50", tag = "choix")
+    nom_fichier = None
+    charger_grille = True
+    while charger_grille:
+        ev = fltk.donne_ev()
+        if clic_bouton(ev, 100, 490, (200, 100)) == True:
+            charger_grille = False
+            return "menu"
+        if clic_bouton(ev, 500, 490, (200, 100)) == True:
+            if nom_fichier is not None:
+                charger_grille = False
+                return nom_fichier
+        if clic_bouton(ev, 100, 270, (600, 60)) == True:
+            nom_fichier = saisie_nom_fichier(sys.argv)
+            fltk.texte(400, 300, nom_fichier, ancrage = "center", 
+                       police = "sketchy in snow", taille = "50", tag = "nom")
+        fltk.mise_a_jour()
+"""        nom_fichier = saisie_nom_fichier(sys.argv)
+        indices = fichier_vers_liste(nom_fichier)
+        etat = {} 
+
+    return (indices, etat)"""
 
 
 def fonction_jeu(indices, etat):
