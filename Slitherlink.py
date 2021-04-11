@@ -255,13 +255,16 @@ def Slitherlink():
                 menu = False
                 slitherlink = False
         if choix_grille:
-            choix = fonction_choix_grille()  # fonction pas encore définie
+            choix = fonction_choix_grille()
             if choix == "menu":
                 choix_grille = False
                 menu = True
         if charger_grille:
-            fonction_charger_grille()  # fonction pas encore définie
-
+            menu = False
+            slitherlink = False
+            indices, etat = fonction_charger_grille()
+            fltk.ferme_fenetre()
+            fonction_jeu(indices, etat)
 
 def fonction_menu():
     """Affiche un menu et renvoie le choix de l'utilisateur
@@ -325,15 +328,16 @@ def fonction_choix_grille():
 
 
 def fonction_charger_grille():
-    pass
-
-
-def fonction_jeu():
-    taille_case = 75
-    taille_marge = 40
+    fltk.texte(100, 100, "saisir sur terminal")
     nom_fichier = saisie_nom_fichier(sys.argv)
     indices = fichier_vers_liste(nom_fichier)
-    print(indices)
+    etat = {}
+    return (indices, etat)
+
+
+def fonction_jeu(indices, etat):
+    taille_case = 75
+    taille_marge = 40
     initialisation_fenetre(indices, taille_case, taille_marge)
     Jouer = True
     while Jouer:
@@ -341,10 +345,19 @@ def fonction_jeu():
         tev = fltk.type_ev(ev)
         if tev == "ClicGauche":
             absc, ordo = fltk.abscisse(ev), fltk.ordonnee(ev)
-            indique_segment(absc, ordo, taille_case, taille_marge)
-        elif tev == "ClicDroit" or tev == "Quitte":
+            seg = indique_segment(ordo, absc, taille_case, taille_marge, indices)
+            tracer_segment(etat, seg)
+            dessine_etat(indices, etat, taille_case, taille_marge)
+        elif tev == "ClicDroit":
+            absc, ordo = fltk.abscisse(ev), fltk.ordonnee(ev)
+            seg = indique_segment(ordo, absc, taille_case, taille_marge, indices)
+            interdire_segment(etat, seg)
+            dessine_etat(indices, etat, taille_case, taille_marge)
+        elif tev == "Quitte":
             Jouer = False
         fltk.mise_a_jour()
+    fltk.ferme_fenetre()
+    print(f"INDICES = {indices} \n\nETAT = {etat}")
 
 
 def initialisation_fenetre(indices, taille_case, taille_marge):
@@ -383,18 +396,43 @@ def trace_cases(indices, taille_case, taille_marge):
     return None
 
 
-def indique_segment(x, y, taille_case, taille_marge):
+def indique_segment(x, y, taille_case, taille_marge, indices):
+    for j in range(len(indices) + 1):
+        for i in range(len(indices[0])):
+            sommet_x = taille_marge + j * taille_case
+            sommet_y = taille_marge + i * taille_case
+            sommet_x2 = taille_marge + (j + 1) * taille_case
+            sommet_y2 = taille_marge + (i + 1) * taille_case
+            dx = 0.2 * taille_case
+            dy = 0.2 * taille_case
+
+            if sommet_x - dx <= x <= sommet_x + dx and\
+               sommet_y <= y <= sommet_y2:
+               return ((i, j), (i + 1 , j))
+            if sommet_x <= x <= sommet_x2 and\
+               sommet_y - dy <= y <= sommet_y + dy:
+               return((i, j), (i, j + 1))
+
+
+def dessine_etat(indices, etat, taille_case, taille_marge):
     for i in range(len(indices) + 1):
-        for j in range(len(indices[0]) + 1):
-            sommet_x = taille_marge + taille_case * j
-            sommet_y = taille_marge + taille_case * i
-            decalage_x = sommet_x + 0.2 * taille_case
-            decalage_y = sommet_y + 0.2 * taille_case
-            if sommet_x - decalage_x <= x <= sommet_x + decalage_x and\
-               sommet_y - decalage_y <= y <= sommet_x + decalage_y:
-               return (i, j)
-
-
+        for j in range(len(indices[0]) - 1):
+            sommet1 = (taille_marge + i * taille_case,
+                      taille_marge + j * taille_case)
+            sommet2 = (taille_marge + (i + 1) * taille_case,
+                      taille_marge + (j + 1) * taille_case)
+            if est_trace(etat, ((i, j), (i, j + 1))):
+                fltk.cercle(sommet1[0], (sommet1[1] + sommet2[1])/2, 3,
+                            couleur="green")
+            if est_trace(etat, ((i, j), (i + 1, j))):
+                fltk.cercle((sommet1[0] + sommet2[0])/2,
+                            sommet1[1], 3, couleur="green")
+            if est_interdit(etat, ((i, j), (i, j + 1))):
+                fltk.cercle(sommet1[0], (sommet1[1] + sommet2[1])/2, 3,
+                            couleur="red")
+            if est_interdit(etat, ((i, j), (i + 1, j))):
+                fltk.cercle((sommet1[0] + sommet2[0])/2,
+                 sommet1[1], 3, couleur="red")
 
 
 # Zone de tests
