@@ -13,9 +13,9 @@ def saisie_nom_fichier(argv):
     if len(argv) >= 2:
         nom_fichier = argv[1]
     else:
-        nom_fichier = input("nom du fichier\n")
+        nom_fichier = input("nom du fichier ('grille-personnalisee.txt')\n")
     while not verif_grille(nom_fichier):
-        nom_fichier = input("nom du fichier\n")
+        nom_fichier = input("nom du fichier ('grille-personnalisee.txt')\n")
     return nom_fichier
 
 
@@ -227,10 +227,73 @@ def longueur_boucle(etat, seg):
 
 # Tache 3 - INTERFACE GRAPHIQUE
 
+def Slitherlink():
+    res = fonction_menu()
+    if res == "choix_grille":
+        fonction_choix_grille()  # fonction pas encore définie
+        fonction_jeu()
+    elif res == "charger_grille":
+        fonction_charger_grille()  # fonction pas encore définie
 
-def Slitherlink(indices):
+
+def fonction_menu():
+    """Affiche un menu et renvoie le choix de l'utilisateur
+    Return:
+        Str: "choix_grille"
+        Str: "charger_grille"
+        None"""
+    # initialisation
+    fltk.cree_fenetre(800, 600)
+    fltk.image(0, 0, "fond_d'ecran_menu.gif",
+               ancrage = "nw", tag = "fond_menu")
+    fltk.image(300, 195, "bouton_nouvelle_partie.gif",
+               ancrage = "nw", tag = "new_partie")
+    fltk.image(300, 330, "bouton_charger_partie.gif",
+               ancrage = "nw", tag = "charger_partie")
+    fltk.image(300, 465, "bouton_quitter.gif",
+               ancrage = "nw", tag = "quitter")
+    menu = True
+    # Boucle majeure
+    while menu:
+        ev = fltk.donne_ev()
+        tev = fltk.type_ev(ev)
+        if tev == "ClicGauche":
+            if fltk.abscisse(ev) >= 300 and fltk.abscisse(ev) <= 500:
+                if fltk.ordonnee(ev) >= 195 and fltk.ordonnee(ev) <= 295:
+                    fltk.ferme_fenetre()
+                    return "choix_grille"
+                if fltk.ordonnee(ev) >= 330 and fltk.ordonnee(ev) <= 430:
+                    fltk.ferme_fenetre()
+                    return "charger_grille"
+                if fltk.ordonnee(ev) >= 465 and fltk.ordonnee(ev) <= 565:
+                    menu = False
+        elif tev == "Quitte":
+            menu = False
+        fltk.mise_a_jour()
+    fltk.ferme_fenetre()
+
+
+def fonction_choix_grille():
+    """
+    if choix_grille:
+        fltk.cree_fenetre(800, 600)
+        fltk.image(0, 0, "fond_d'ecran.gif",
+                   ancrage = "nw", tag = "fond")
+        fltk.image(300, 650, "bouton_quitter.gif",
+                   ancrage = "nw", tag = "quitter")"""
+    # while choix_grille:
+    pass
+
+def fonction_charger_grille():
+    pass
+
+
+def fonction_jeu():
     taille_case = 75
     taille_marge = 40
+    nom_fichier = saisie_nom_fichier(sys.argv)
+    indices = fichier_vers_liste(nom_fichier)
+    print(indices)
     initialisation_fenetre(indices, taille_case, taille_marge)
     Jouer = True
     while Jouer:
@@ -242,23 +305,6 @@ def Slitherlink(indices):
         elif tev == "ClicDroit" or tev == "Quitte":
             Jouer = False
         fltk.mise_a_jour()
-
-def indique_segment(x, y, taille_case, taille_marge):
-    for i in range(len(indices) + 1):
-        for j in range(len(indices[0]) + 1):
-            sommet_x = taille_marge + taille_case * j
-            sommet_y = taille_marge + taille_case * i
-            decalage_x = sommet_x + 0.2 * taille_case
-            decalage_y = sommet_y + 0.2 * taille_case
-            if sommet_x - decalage_x <= x <= sommet_x + decalage_x and\
-               sommet_y - decalage_y <= y <= sommet_x + decalage_y:
-               return (i, j)
-
-
-
-
-
-
 
 
 def initialisation_fenetre(indices, taille_case, taille_marge):
@@ -275,6 +321,7 @@ def initialisation_fenetre(indices, taille_case, taille_marge):
                    largeur - taille_marge, hauteur - taille_marge)"""
     trace_cases(indices, taille_case, taille_marge)
     return None
+
 
 def trace_cases(indices, taille_case, taille_marge):
     """Fonction auxiliaire permettant de tracer les cases
@@ -296,11 +343,16 @@ def trace_cases(indices, taille_case, taille_marge):
     return None
 
 
-
-
-
-
-
+def indique_segment(x, y, taille_case, taille_marge):
+    for i in range(len(indices) + 1):
+        for j in range(len(indices[0]) + 1):
+            sommet_x = taille_marge + taille_case * j
+            sommet_y = taille_marge + taille_case * i
+            decalage_x = sommet_x + 0.2 * taille_case
+            decalage_y = sommet_y + 0.2 * taille_case
+            if sommet_x - decalage_x <= x <= sommet_x + decalage_x and\
+               sommet_y - decalage_y <= y <= sommet_x + decalage_y:
+               return (i, j)
 
 
 
@@ -333,8 +385,8 @@ print(etat)
          ((2, 2), (2, 1)): 1,
          ((2, 1), (1, 1)): 0}"""
 
-# Test pour partie_finie
-etat = {((0, 0), (0, 1)): 1,
+
+"""etat = {((0, 0), (0, 1)): 1,
         ((0, 1), (1, 1)): 1,
         ((1, 1), (1, 2)): 1,
         ((1, 2), (2, 2)): 1,
@@ -350,70 +402,19 @@ indices = [[3, 2, None, None, 0, None],
            [3, 2, None, None, None, None],
            [None, None, None, None, 0, 1],
            [None, None, None, None, 0, 1],
-           [None, None, None, None, 0, 1]]
-
+           [None, None, None, None, 0, 1]]"""
 
 
 """print(longueur_boucle(etat2, ((0, 0),(0, 1))))
 print(segments_testsV2(etat, (1, 1), est_trace))
 print(segments_testsV2(etat, (1, 1), est_interdit))
 print(segments_testsV2(etat, (1, 1), est_vierge))"""
-# ne marche pas completement
-print(partie_finie(indices, etat))
+
+
 print("FIN DE ZONE DE TEST")
 
 
-
-# Zone appel de fonctions
-
-"""nom_fichier = saisie_nom_fichier(sys.argv)
-indices = fichier_vers_liste(nom_fichier)
-print(indices)
-print(statut_case(indices, etat3, ((1, 1))))"""
-
-
-#Slitherlink(indices)
-
-#boucle principale
+# Boucle principale
 
 if __name__ == "__main__":
-    fltk.cree_fenetre(800, 600)
-    fltk.image(0, 0, "fond_d'ecran_menu.gif", 
-               ancrage = "nw", tag = "fond_menu")
-    fltk.image(300, 195, "bouton_nouvelle_partie.gif", 
-               ancrage = "nw", tag = "new_partie")
-    fltk.image(300, 330, "bouton_charger_partie.gif", 
-               ancrage = "nw", tag = "charger_partie") 
-    fltk.image(300, 465, "bouton_quitter.gif", 
-               ancrage = "nw", tag = "quitter") 
-    menu = True
-    choix_grille = False
-    charger_grille = False
-    while menu:
-      
-        ev = fltk.donne_ev()
-        tev = fltk.type_ev(ev)
-        if tev == "ClicGauche":
-            if fltk.abscisse(ev) >= 300 and fltk.abscisse(ev) <= 500:
-                if fltk.ordonnee(ev) >= 195 and fltk.ordonnee(ev) <= 295:
-                    menu = False
-                    choix_grille = True
-                if fltk.ordonnee(ev) >= 330 and fltk.ordonnee(ev) <= 430:
-                    menu = False
-                    charger_grille = True
-                if fltk.ordonnee(ev) >= 465 and fltk.ordonnee(ev) <= 565:
-                    break
-        fltk.mise_a_jour()
-    fltk.ferme_fenetre()
-    if choix_grille:
-        fltk.cree_fenetre(800, 600)
-        fltk.image(0, 0, "fond_d'ecran.gif",
-                   ancrage = "nw", tag = "fond")
-        fltk.image(300, 650, "bouton_quitter.gif", 
-                   ancrage = "nw", tag = "quitter")
-    while choix_grille:
-   
-        
-    
-    
-    
+    Slitherlink()
