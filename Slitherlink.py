@@ -227,15 +227,42 @@ def longueur_boucle(etat, seg):
 
 # Tache 3 - INTERFACE GRAPHIQUE
 
+def clic_bouton(ev, absc, ordo):
+    tev = fltk.type_ev(ev)
+    if tev == "ClicGauche":
+        if fltk.abscisse(ev) >= absc and fltk.abscisse(ev) <= absc + 200:
+            if fltk.ordonnee(ev) >= ordo and fltk.ordonnee(ev) <= ordo + 100:
+                return True
+            return False
+            
 def Slitherlink():
-    res = fonction_menu()
-    if res == "choix_grille":
-        fonction_choix_grille()  # fonction pas encore définie
-        fonction_jeu()
-    elif res == "charger_grille":
-        fonction_charger_grille()  # fonction pas encore définie
-
-
+    fltk.cree_fenetre(800, 600)
+    slitherlink = True
+    menu = True
+    choix_grille = False
+    charger_grille = False
+    while slitherlink:
+        if menu:
+            res = fonction_menu()
+            if res == "choix_grille":
+                choix_grille = True
+                menu = False
+            elif res == "charger_grille":
+                charger_grille = True
+                menu = False
+            elif res == "quitter":
+                fltk.ferme_fenetre()
+                menu = False
+                slitherlink == False
+        if choix_grille:
+            choix = fonction_choix_grille()  # fonction pas encore définie
+            if choix == "menu":
+                choix_grille = False
+                menu = True
+        if charger_grille:
+            fonction_charger_grille()  # fonction pas encore définie
+            
+            
 def fonction_menu():
     """Affiche un menu et renvoie le choix de l'utilisateur
     Return:
@@ -243,7 +270,8 @@ def fonction_menu():
         Str: "charger_grille"
         None"""
     # initialisation
-    fltk.cree_fenetre(800, 600)
+    fltk.efface_tout()
+    fltk.mise_a_jour()    
     fltk.image(0, 0, "fond_d'ecran_menu.gif",
                ancrage = "nw", tag = "fond_menu")
     fltk.image(300, 195, "bouton_nouvelle_partie.gif",
@@ -256,21 +284,17 @@ def fonction_menu():
     # Boucle majeure
     while menu:
         ev = fltk.donne_ev()
-        tev = fltk.type_ev(ev)
-        if tev == "ClicGauche":
-            if fltk.abscisse(ev) >= 300 and fltk.abscisse(ev) <= 500:
-                if fltk.ordonnee(ev) >= 195 and fltk.ordonnee(ev) <= 295:
-                    fltk.ferme_fenetre()
-                    return "choix_grille"
-                if fltk.ordonnee(ev) >= 330 and fltk.ordonnee(ev) <= 430:
-                    fltk.ferme_fenetre()
-                    return "charger_grille"
-                if fltk.ordonnee(ev) >= 465 and fltk.ordonnee(ev) <= 565:
-                    menu = False
-        elif tev == "Quitte":
+        if clic_bouton(ev, 300, 195) == True:
             menu = False
+            return "choix_grille"
+        if clic_bouton(ev, 300, 330) == True:
+            menu = False
+            return "charger_grille"
+        if clic_bouton(ev, 300, 465) == True:
+            menu = False
+            return "quitter"
         fltk.mise_a_jour()
-    fltk.ferme_fenetre()
+    
 
 
 def fonction_choix_grille():
@@ -281,9 +305,25 @@ def fonction_choix_grille():
                    ancrage = "nw", tag = "fond")
         fltk.image(300, 650, "bouton_quitter.gif",
                    ancrage = "nw", tag = "quitter")"""
-    # while choix_grille:
-    pass
 
+    fltk.efface_tout()
+    fltk.mise_a_jour()
+    fltk.image(0, 0, "fond_d'ecran.gif",
+               ancrage = "nw", tag = "fond")
+    fltk.image(300, 490, "bouton_menu.gif",
+               ancrage = "nw", tag = "menu")
+    fltk.texte(200, 20, "Choix de la grille :", couleur = "#4CFF00",
+               police = "sketchy in snow", taille = "50", tag = "choix")
+    fltk.mise_a_jour()
+    choix_grille = True
+    while choix_grille:
+        ev = fltk.donne_ev()
+        if clic_bouton(ev, 300, 490) == True:
+            choix_grille = False
+            return "menu"
+        fltk.mise_a_jour()
+        
+    
 def fonction_charger_grille():
     pass
 
