@@ -227,11 +227,12 @@ def longueur_boucle(etat, seg):
 
 # Tache 3 - INTERFACE GRAPHIQUE
 
-def clic_bouton(ev, absc, ordo):
+def clic_bouton(ev, absc, ordo, dimension):
+    lg, ht = dimension
     tev = fltk.type_ev(ev)
     if tev == "ClicGauche":
-        if fltk.abscisse(ev) >= absc and fltk.abscisse(ev) <= absc + 200:
-            if fltk.ordonnee(ev) >= ordo and fltk.ordonnee(ev) <= ordo + 100:
+        if fltk.abscisse(ev) >= absc and fltk.abscisse(ev) <= absc + lg:
+            if fltk.ordonnee(ev) >= ordo and fltk.ordonnee(ev) <= ordo + ht:
                 return True
             return False
 
@@ -287,13 +288,13 @@ def fonction_menu():
     # Boucle majeure
     while menu:
         ev = fltk.donne_ev()
-        if clic_bouton(ev, 300, 195) == True:
+        if clic_bouton(ev, 300, 195, (200, 100)) == True:
             menu = False
             return "choix_grille"
-        if clic_bouton(ev, 300, 330) == True:
+        if clic_bouton(ev, 300, 330, (200, 100)) == True:
             menu = False
             return "charger_grille"
-        if clic_bouton(ev, 300, 465) == True:
+        if clic_bouton(ev, 300, 465, (200, 100)) == True:
             menu = False
             return "quitter"
         fltk.mise_a_jour()
@@ -315,13 +316,21 @@ def fonction_choix_grille():
                ancrage = "nw", tag = "fond")
     fltk.image(300, 490, "bouton_menu.gif",
                ancrage = "nw", tag = "menu")
+    fltk.image(40, 215, "bouton_grille1.gif",
+               ancrage = "nw", tag = "grille1")
+    fltk.image(230, 215, "bouton_grille2.gif",
+               ancrage = "nw", tag = "grille2")
+    fltk.image(420, 215, "bouton_grille3.gif",
+               ancrage = "nw", tag = "grille3")
+    fltk.image(610, 215, "bouton_grille4.gif",
+               ancrage = "nw", tag = "grille4")
     fltk.texte(200, 20, "Choix de la grille :", couleur = "#4CFF00",
                police = "sketchy in snow", taille = "50", tag = "choix")
     fltk.mise_a_jour()
     choix_grille = True
     while choix_grille:
         ev = fltk.donne_ev()
-        if clic_bouton(ev, 300, 490) == True:
+        if clic_bouton(ev, 300, 490, (200, 100)) == True:
             choix_grille = False
             return "menu"
         fltk.mise_a_jour()
