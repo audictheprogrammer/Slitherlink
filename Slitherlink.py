@@ -234,7 +234,7 @@ def clic_bouton(ev, absc, ordo):
             if fltk.ordonnee(ev) >= ordo and fltk.ordonnee(ev) <= ordo + 100:
                 return True
             return False
-            
+
 def Slitherlink():
     fltk.cree_fenetre(800, 600)
     slitherlink = True
@@ -253,7 +253,7 @@ def Slitherlink():
             elif res == "quitter":
                 fltk.ferme_fenetre()
                 menu = False
-                slitherlink == False
+                slitherlink = False
         if choix_grille:
             choix = fonction_choix_grille()  # fonction pas encore définie
             if choix == "menu":
@@ -261,8 +261,8 @@ def Slitherlink():
                 menu = True
         if charger_grille:
             fonction_charger_grille()  # fonction pas encore définie
-            
-            
+
+
 def fonction_menu():
     """Affiche un menu et renvoie le choix de l'utilisateur
     Return:
@@ -271,7 +271,7 @@ def fonction_menu():
         None"""
     # initialisation
     fltk.efface_tout()
-    fltk.mise_a_jour()    
+    fltk.mise_a_jour()
     fltk.image(0, 0, "fond_d'ecran_menu.gif",
                ancrage = "nw", tag = "fond_menu")
     fltk.image(300, 195, "bouton_nouvelle_partie.gif",
@@ -294,7 +294,7 @@ def fonction_menu():
             menu = False
             return "quitter"
         fltk.mise_a_jour()
-    
+
 
 
 def fonction_choix_grille():
@@ -322,8 +322,8 @@ def fonction_choix_grille():
             choix_grille = False
             return "menu"
         fltk.mise_a_jour()
-        
-    
+
+
 def fonction_charger_grille():
     pass
 
