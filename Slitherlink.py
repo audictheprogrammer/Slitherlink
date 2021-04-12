@@ -242,6 +242,7 @@ def Slitherlink():
     menu = True
     choix_grille = False
     charger_grille = False
+    partie = False
     while slitherlink:
         if menu:
             res = fonction_menu()
@@ -255,13 +256,19 @@ def Slitherlink():
                 fltk.ferme_fenetre()
                 menu = False
                 slitherlink = False
-        if choix_grille:
+        elif choix_grille:
             choix = fonction_choix_grille()
+            nom_fichier = choix
             if choix == "menu":
                 choix_grille = False
                 menu = True
-        if charger_grille:
+            elif choix == "grille1.txt" or choix == "grille2.txt" or choix == "grille3.txt" or choix =="grille4.txt":
+                choix_grille = False
+                partie = True
+                fltk.ferme_fenetre()
+        elif charger_grille:
             charger = fonction_charger_grille()
+            nom_fichier = charger
             if charger == "menu":
                 charger_grille = False
                 menu = True
@@ -269,8 +276,8 @@ def Slitherlink():
                 charger_grille = False
                 partie = True
                 fltk.ferme_fenetre()
-        if partie:
-            jouer = fonction_jeu(fichier_vers_liste(charger), {})
+        elif partie:
+            jouer = fonction_jeu(fichier_vers_liste(nom_fichier), {})
             """indices, etat = fonction_charger_grille()
             fltk.ferme_fenetre()
             fonction_jeu(indices, etat)"""
@@ -341,6 +348,18 @@ def fonction_choix_grille():
         if clic_bouton(ev, 300, 490, (200, 100)) == True:
             choix_grille = False
             return "menu"
+        if clic_bouton(ev, 40, 215, (150, 150)) == True:
+            choix_grille = False
+            return "grille1.txt"
+        if clic_bouton(ev, 230, 215, (150, 150)) == True:
+            choix_grille = False
+            return "grille2.txt"
+        if clic_bouton(ev, 420, 215, (150, 150)) == True:
+            choix_grille = False
+            return "grille3.txt"
+        if clic_bouton(ev, 610, 215, (150, 150)) == True:
+            choix_grille = False
+            return "grille4.txt"
         fltk.mise_a_jour()
 
 
@@ -413,11 +432,13 @@ def initialisation_fenetre(indices, taille_case, taille_marge):
         taille_case -> Int
         taille_marge -> Int
     """
-    largeur = len(indices) * taille_case + 2 * taille_marge
+    largeur = len(indices) * taille_case + 2 * taille_marge + 250
     hauteur = len(indices) * taille_case + 2 * taille_marge
     fltk.cree_fenetre(largeur, hauteur)
-    """fltk.rectangle(taille_marge, taille_marge,
-                   largeur - taille_marge, hauteur - taille_marge)"""
+    fltk.rectangle(0, 0, largeur - 250, hauteur, couleur = "#00C8FF",
+                   remplissage = "#00C8FF", tag = "cote_jeu")
+    fltk.rectangle(largeur - 250, 0, largeur, hauteur, couleur = "#007F7F",
+                   remplissage = "#007F7F", tag = "menu_cote")
     trace_cases(indices, taille_case, taille_marge)
     return None
 
@@ -465,14 +486,18 @@ def dessine_etat(indices, etat, taille_case, taille_marge):
         for j in range(len(indices[0]) - 1):
             sommet1 = (taille_marge + i * taille_case,
                       taille_marge + j * taille_case)
+            x_sommet1, y_sommet1 = sommet1
             sommet2 = (taille_marge + (i + 1) * taille_case,
                       taille_marge + (j + 1) * taille_case)
+            x_sommet2, y_sommet2 = sommet2
             if est_trace(etat, ((i, j), (i, j + 1))):
-                fltk.cercle(sommet1[0], (sommet1[1] + sommet2[1])/2, 3,
-                            couleur="green")
+                fltk.ligne(x_sommet1, y_sommet1, x_sommet2 - taille_case, 
+                    y_sommet2, couleur="#004A7F", epaisseur = "3")
             if est_trace(etat, ((i, j), (i + 1, j))):
-                fltk.cercle((sommet1[0] + sommet2[0])/2,
-                            sommet1[1], 3, couleur="green")
+                fltk.ligne(x_sommet1, y_sommet1, x_sommet2, 
+                    y_sommet2 - taille_case, couleur="#004A7F", epaisseur="3")
+                """fltk.cercle((sommet1[0] + sommet2[0])/2,
+                            sommet1[1], 3, couleur="#004A7F")"""
             if est_interdit(etat, ((i, j), (i, j + 1))):
                 fltk.cercle(sommet1[0], (sommet1[1] + sommet2[1])/2, 3,
                             couleur="red")
