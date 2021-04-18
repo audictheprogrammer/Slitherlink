@@ -234,12 +234,16 @@ def longueur_boucle(etat, seg):
 
 def Slitherlink():
     fltk.cree_fenetre(800, 600)
+    fenetre = True
     slitherlink = True
     menu = True
     choix_grille = False
     charger_grille = False
     partie = False
     while slitherlink:
+        if fenetre == False and partie == False:
+            fltk.cree_fenetre(800, 600)
+            fenetre = True
         if menu:
             res = fonction_menu()
             if res == "choix_grille":
@@ -250,6 +254,7 @@ def Slitherlink():
                 menu = False
             elif res == "quitter":
                 fltk.ferme_fenetre()
+                fenetre = False
                 menu = False
                 slitherlink = False
         elif choix_grille:
@@ -261,6 +266,7 @@ def Slitherlink():
             elif choix == "grille1.txt" or choix == "grille2.txt" or choix == "grille3.txt" or choix =="grille4.txt":
                 choix_grille = False
                 partie = True
+                fenetre = False
                 fltk.ferme_fenetre()
         elif charger_grille:
             charger = fonction_charger_grille()
@@ -271,11 +277,22 @@ def Slitherlink():
             else:
                 charger_grille = False
                 partie = True
+                fenetre = False
                 fltk.ferme_fenetre()
         elif partie:
             jouer = fonction_jeu(fichier_vers_liste(nom_fichier), {})
-            slitherlink = False
-
+            if jouer == "choix_grille":
+                choix_grille = True
+                partie = False
+                fltk.ferme_fenetre()
+            if jouer == "quitter":
+                fltk.ferme_fenetre()
+                partie = False
+                slitherlink = False
+            if jouer == "menu":
+                fltk.ferme_fenetre()
+                partie = False
+                menu = True
 
 def fonction_menu():
     """Affiche un menu et renvoie le choix de l'utilisateur
@@ -408,6 +425,11 @@ def fonction_jeu(indices, etat):
     taille_case = 75
     taille_marge = 40
     initialisation_fenetre(indices, taille_case, taille_marge)
+    fltk.image(555, 40, "bouton_sauvergarder.gif", ancrage = "nw")
+    fltk.image(555, 160, "bouton_solution.gif", ancrage = "nw")
+    fltk.image(555, 280, "bouton_grille.gif", ancrage = "nw")
+    fltk.image(545, 400, "bouton_maison.gif", ancrage = "nw")
+    fltk.image(665, 400, "bouton_eteindre.gif", ancrage = "nw")
     Jouer = True
     while Jouer:
         ev = fltk.donne_ev()
@@ -418,6 +440,22 @@ def fonction_jeu(indices, etat):
             print(seg)
             if seg is not None:
                 tracer_segment(etat, seg)
+            if seg is None:
+                if clic_bouton(ev, 665, 400, (100, 100)) == True:
+                    Jouer = False
+                    return "quitter"
+                if clic_bouton(ev, 545, 400, (100, 100)) == True:
+                    Jouer = False
+                    return "menu"                
+                if clic_bouton(ev, 555, 40, (200, 100)) == True:
+                    Jouer = False
+                    return "sauvegarder"
+                if clic_bouton(ev, 555, 160, (200, 100)) == True:
+                    Jouer = False
+                    return "solution"  
+                if clic_bouton(ev, 555, 280, (200, 100)) == True:
+                    Jouer = False
+                    return "choix_grille" 
             dessine_etat(indices, etat, taille_case, taille_marge)
         elif tev == "ClicDroit":
             absc, ordo = fltk.abscisse(ev), fltk.ordonnee(ev)
