@@ -13,9 +13,9 @@ def saisie_nom_fichier(argv):
     if len(argv) >= 2:
         nom_fichier = argv[1]
     else:
-        nom_fichier = input("nom du fichier ('grille-personnalisee.txt')\n")
+        nom_fichier = input("nom du fichier\n")
     while not verif_grille(nom_fichier):
-        nom_fichier = input("nom du fichier ('grille-personnalisee.txt')\n")
+        nom_fichier = input("nom du fichier\n")
     return nom_fichier
 
 
@@ -198,9 +198,8 @@ def partie_finie(indices, etat):
             case = i, j
             res = statut_case(indices, etat, case)
             if res is not None and res != 0 :
-                print(case)
                 return False
-    segment_depart = ((0, 0), (0, 1))
+    segment_depart = ((0, 0), (0, 1))  # à modifier
     if longueur_boucle(etat, segment_depart) is not None:
         return True
     else:
@@ -233,6 +232,7 @@ def longueur_boucle(etat, seg):
 
 
 def Slitherlink():
+    print("Debut du jeu")
     fltk.cree_fenetre(800, 600)
     fenetre = True
     slitherlink = True
@@ -260,7 +260,11 @@ def Slitherlink():
         elif choix_grille:
             choix = fonction_choix_grille()
             nom_fichier = choix
-            if choix == "menu":
+            if choix == "quitter":
+                choix_grille = False
+                slitherlink = False
+                fltk.ferme_fenetre()
+            elif choix == "menu":
                 choix_grille = False
                 menu = True
             elif choix == "grille1.txt" or choix == "grille2.txt" or choix == "grille3.txt" or choix =="grille4.txt":
@@ -271,7 +275,11 @@ def Slitherlink():
         elif charger_grille:
             charger = fonction_charger_grille()
             nom_fichier = charger
-            if charger == "menu":
+            if charger == "quitter":
+                charger_grille = False
+                slitherlink = False
+                fltk.ferme_fenetre()
+            elif charger == "menu":
                 charger_grille = False
                 menu = True
             else:
@@ -293,6 +301,7 @@ def Slitherlink():
                 fltk.ferme_fenetre()
                 partie = False
                 menu = True
+    print("Fin du jeu")
 
 def fonction_menu():
     """Affiche un menu et renvoie le choix de l'utilisateur
@@ -303,18 +312,19 @@ def fonction_menu():
     # initialisation
     fltk.efface_tout()
     fltk.mise_a_jour()
-    fltk.image(0, 0, "fond_d'ecran_menu.gif",
+    fltk.image(0, 0, "ressources/fond_d'ecran_menu.gif",
                ancrage = "nw", tag = "fond_menu")
-    fltk.image(300, 195, "bouton_nouvelle_partie.gif",
+    fltk.image(300, 195, "ressources/bouton_nouvelle_partie.gif",
                ancrage = "nw", tag = "new_partie")
-    fltk.image(300, 330, "bouton_charger_partie.gif",
+    fltk.image(300, 330, "ressources/bouton_charger_partie.gif",
                ancrage = "nw", tag = "charger_partie")
-    fltk.image(300, 465, "bouton_quitter.gif",
+    fltk.image(300, 465, "ressources/bouton_quitter.gif",
                ancrage = "nw", tag = "quitter")
     menu = True
     # Boucle majeure
     while menu:
         ev = fltk.donne_ev()
+        tev = fltk.type_ev(ev)
         if clic_bouton(ev, 300, 195, (200, 100)) == True:
             menu = False
             return "choix_grille"
@@ -322,6 +332,9 @@ def fonction_menu():
             menu = False
             return "charger_grille"
         if clic_bouton(ev, 300, 465, (200, 100)) == True:
+            menu = False
+            return "quitter"
+        if tev == "Quitte":
             menu = False
             return "quitter"
         fltk.mise_a_jour()
@@ -341,31 +354,32 @@ def fonction_choix_grille():
     """
     if choix_grille:
         fltk.cree_fenetre(800, 600)
-        fltk.image(0, 0, "fond_d'ecran.gif",
+        fltk.image(0, 0, "ressources/fond_d'ecran.gif",
                    ancrage = "nw", tag = "fond")
-        fltk.image(300, 650, "bouton_quitter.gif",
+        fltk.image(300, 650, "ressources/bouton_quitter.gif",
                    ancrage = "nw", tag = "quitter")"""
 
     fltk.efface_tout()
     fltk.mise_a_jour()
-    fltk.image(0, 0, "fond_d'ecran.gif",
+    fltk.image(0, 0, "ressources/fond_d'ecran.gif",
                ancrage = "nw", tag = "fond")
-    fltk.image(300, 490, "bouton_menu.gif",
+    fltk.image(300, 490, "ressources/bouton_menu.gif",
                ancrage = "nw", tag = "menu")
-    fltk.image(40, 215, "bouton_grille1.gif",
+    fltk.image(40, 215, "ressources/bouton_grille1.gif",
                ancrage = "nw", tag = "grille1")
-    fltk.image(230, 215, "bouton_grille2.gif",
+    fltk.image(230, 215, "ressources/bouton_grille2.gif",
                ancrage = "nw", tag = "grille2")
-    fltk.image(420, 215, "bouton_grille3.gif",
+    fltk.image(420, 215, "ressources/bouton_grille3.gif",
                ancrage = "nw", tag = "grille3")
-    fltk.image(610, 215, "bouton_grille4.gif",
+    fltk.image(610, 215, "ressources/bouton_grille4.gif",
                ancrage = "nw", tag = "grille4")
-    fltk.texte(200, 20, "Choix de la grille :", couleur = "#4CFF00",
+    fltk.texte(200, 20, "ressources/Choix de la grille :", couleur = "#4CFF00",
                police = "sketchy in snow", taille = "50", tag = "choix")
     fltk.mise_a_jour()
     choix_grille = True
     while choix_grille:
         ev = fltk.donne_ev()
+        tev = fltk.type_ev(ev)
         if clic_bouton(ev, 300, 490, (200, 100)) == True:
             choix_grille = False
             return "menu"
@@ -381,6 +395,9 @@ def fonction_choix_grille():
         if clic_bouton(ev, 610, 215, (150, 150)) == True:
             choix_grille = False
             return "grille4.txt"
+        if tev == "Quitte":
+            choix_grille = False
+            return "quitter"
         fltk.mise_a_jour()
 
 
@@ -388,20 +405,22 @@ def fonction_charger_grille():
 
     fltk.efface_tout()
     fltk.mise_a_jour()
-    fltk.image(0, 0, "fond_d'ecran.gif",
+    fltk.image(0, 0, "ressources/fond_d'ecran.gif",
                ancrage = "nw", tag = "fond")
-    fltk.image(100, 490, "bouton_menu.gif",
+    fltk.image(100, 490, "ressources/bouton_menu.gif",
                ancrage = "nw", tag = "menu")
-    fltk.image(500, 490, "bouton_valider.gif",
+    fltk.image(500, 490, "ressources/bouton_valider.gif",
                ancrage = "nw", tag = "menu")
     fltk.rectangle(100, 270, 700, 330, couleur = "black",
                    remplissage = "white", tag = "barre_blanche")
     fltk.texte(75, 70, "Saisissez le nom du fichier :", couleur = "#4CFF00",
                police = "sketchy in snow", taille = "50", tag = "choix")
+
     nom_fichier = None
     charger_grille = True
     while charger_grille:
         ev = fltk.donne_ev()
+        tev = fltk.type_ev(ev)
         if clic_bouton(ev, 100, 490, (200, 100)) == True:
             charger_grille = False
             return "menu"
@@ -412,24 +431,21 @@ def fonction_charger_grille():
         if clic_bouton(ev, 100, 270, (600, 60)) == True:
             nom_fichier = saisie_nom_fichier(sys.argv)
             fltk.texte(400, 300, nom_fichier, ancrage = "center",
-                       police = "sketchy in snow", taille = "50", tag = "nom")
+                       police = "ressources/sketchy in snow", taille = "50", tag = "nom")
+        if tev == "Quitte":
+            return "quitter"
         fltk.mise_a_jour()
-"""        nom_fichier = saisie_nom_fichier(sys.argv)
-        indices = fichier_vers_liste(nom_fichier)
-        etat = {}
-
-    return (indices, etat)"""
 
 
 def fonction_jeu(indices, etat):
     taille_case = 75
     taille_marge = 40
     initialisation_fenetre(indices, taille_case, taille_marge)
-    fltk.image(555, 40, "bouton_sauvergarder.gif", ancrage = "nw")
-    fltk.image(555, 160, "bouton_solution.gif", ancrage = "nw")
-    fltk.image(555, 280, "bouton_grille.gif", ancrage = "nw")
-    fltk.image(545, 400, "bouton_maison.gif", ancrage = "nw")
-    fltk.image(665, 400, "bouton_eteindre.gif", ancrage = "nw")
+    fltk.image(555, 40, "ressources/bouton_sauvergarder.gif", ancrage = "nw")
+    fltk.image(555, 160, "ressources/bouton_solution.gif", ancrage = "nw")
+    fltk.image(555, 280, "ressources/bouton_grille.gif", ancrage = "nw")
+    fltk.image(545, 400, "ressources/bouton_maison.gif", ancrage = "nw")
+    fltk.image(665, 400, "ressources/bouton_eteindre.gif", ancrage = "nw")
     Jouer = True
     while Jouer:
         ev = fltk.donne_ev()
@@ -437,7 +453,6 @@ def fonction_jeu(indices, etat):
         if tev == "ClicGauche":
             absc, ordo = fltk.abscisse(ev), fltk.ordonnee(ev)
             seg = indique_segment(absc, ordo, taille_case, taille_marge, indices)
-            print(seg)
             if seg is not None:
                 tracer_segment(etat, seg)
             if seg is None:
@@ -446,16 +461,16 @@ def fonction_jeu(indices, etat):
                     return "quitter"
                 if clic_bouton(ev, 545, 400, (100, 100)) == True:
                     Jouer = False
-                    return "menu"                
+                    return "menu"
                 if clic_bouton(ev, 555, 40, (200, 100)) == True:
                     Jouer = False
                     return "sauvegarder"
                 if clic_bouton(ev, 555, 160, (200, 100)) == True:
                     Jouer = False
-                    return "solution"  
+                    return "solution"
                 if clic_bouton(ev, 555, 280, (200, 100)) == True:
                     Jouer = False
-                    return "choix_grille" 
+                    return "choix_grille"
             dessine_etat(indices, etat, taille_case, taille_marge)
         elif tev == "ClicDroit":
             absc, ordo = fltk.abscisse(ev), fltk.ordonnee(ev)
@@ -463,16 +478,16 @@ def fonction_jeu(indices, etat):
             if seg is not None:
                 interdire_segment(etat, seg)
             dessine_etat(indices, etat, taille_case, taille_marge)
-            print(etat)
         elif tev == "Quitte":
             Jouer = False
+            return "quitter"
         fltk.mise_a_jour()
     fltk.ferme_fenetre()
     return False
 
 
 def initialisation_fenetre(indices, taille_case, taille_marge):
-    """Initialise la fenetre du jeu
+    """Initialise la fenêtre du jeu
     Paramètres:
         indices -> List[List], permet de connaitre la taille de la grille.
         taille_case -> Int
@@ -485,11 +500,10 @@ def initialisation_fenetre(indices, taille_case, taille_marge):
                    remplissage = "#00C8FF", tag = "cote_jeu")
     fltk.rectangle(largeur - 250, 0, largeur, hauteur, couleur = "#007F7F",
                    remplissage = "#007F7F", tag = "menu_cote")
-    trace_cases(indices, taille_case, taille_marge)
+    fenetre_trace(indices, taille_case, taille_marge)
     return None
 
-
-def trace_cases(indices, taille_case, taille_marge):
+def fenetre_trace(indices, taille_case, taille_marge):
     """Fonction auxiliaire permettant de tracer les cases
     Paramètres:
         indices -> List[List], permet de connaitre la taille de la grille.
@@ -498,14 +512,24 @@ def trace_cases(indices, taille_case, taille_marge):
     """
     for i in range(len(indices) + 1):
         for j in range(len(indices[0]) + 1):
-            fltk.cercle(taille_marge + i * taille_case,
-                        taille_marge + j * taille_case,
-                        5)
-            """if i != 0 and j != 0:
-                fltk.rectangle(taille_marge + i * taille_case,
-                               taille_marge + j *taille_case,
-                               taille_marge + (i -1) * taille_case,
-                               taille_marge + (j - 1) * taille_case)"""
+            sommet_x = taille_marge + i * taille_case
+            sommet_y = taille_marge + j * taille_case
+            sommet_x2 = taille_marge + (i + 1) * taille_case
+            sommet_y2 = taille_marge + (j + 1) * taille_case
+
+            # Trace les sommets
+            fltk.cercle(sommet_x, sommet_y, r=5)
+            if i != len(indices) and j != len(indices[0]):
+
+                # Trace les segments
+                fltk.rectangle(sommet_x, sommet_y, sommet_x2, sommet_y2,
+                               couleur="#FFFFFF")
+
+                # Trace les cases
+                if indices[j][i] is not None:
+                    fltk.texte((sommet_x + sommet_x2)/2, (sommet_y + sommet_y2)/2,
+                               chaine=indices[j][i], couleur="#112BB3")
+
     return None
 
 
@@ -516,8 +540,10 @@ def indique_segment(x, y, taille_case, taille_marge, indices):
             sommet_y = taille_marge + j * taille_case
             sommet_x2 = taille_marge + (i + 1) * taille_case
             sommet_y2 = taille_marge + (j + 1) * taille_case
+            # dx pour décalage x, idem pour dy
             dx = 0.2 * taille_case
             dy = 0.2 * taille_case
+
             if sommet_x <= x <= sommet_x2 and\
                sommet_y - dy <= y <= sommet_y + dy:
                return ((j, i), (j, i + 1))
@@ -525,11 +551,22 @@ def indique_segment(x, y, taille_case, taille_marge, indices):
                sommet_x - dx <= x <= sommet_x + dx:
                return ((j, i), (j + 1, i))
 
+            # Pour les cas qui n'ont pas été pris en compte
+            if i == len(indices) - 1:
+                if sommet_x2 - dx <= x <= sommet_x2 + dx and\
+                   sommet_y <= y <= sommet_y2:
+                   return ((j, i + 1), (j + 1, i + 1))
+            if j == len(indices[0]) - 1:
+                if sommet_x <= x <= sommet_x2 and\
+                   sommet_y2 - dy <= y <= sommet_y2 + dy:
+                    return ((j + 1, i), (j + 1, i + 1))
+    return None
+
 
 def dessine_etat(indices, etat, taille_case, taille_marge):
     fltk.efface("etat")
-    for i in range(len(indices)):
-        for j in range(len(indices[0])):
+    for i in range(len(indices) + 1):
+        for j in range(len(indices[0]) + 1):
             sommet1 = (j, i)
             sommet2 = (j, i + 1)
             sommet3 = (j + 1, i)
@@ -563,61 +600,7 @@ def dessine_etat(indices, etat, taille_case, taille_marge):
 
 
 
-# Zone de tests
-"""
-etat = {((0, 0), (0, 1)) : 1, ((1, 1), (1, 2)) : - 1}
-print(est_vierge(etat, ((0, 0), (0, 1))))   #False
-print(est_vierge(etat, ((1, 0), (0, 1))))   #True
-print(est_trace(etat, ((0, 0), (0, 1))))    #True
-print(est_trace(etat, ((1, 0), (0, 1))))    #False
-print(est_interdit(etat, ((0, 0), (0, 1)))) #False
-print(est_interdit(etat, ((1, 1), (1, 2)))) #True
-tracer_segment(etat, ((1, 0), (0, 1)))
-print(etat)
-interdire_segment(etat, ((1, 0), (2, 0)))
-print(etat)
-effacer_segment(etat, ((0, 0), (0, 1)))
-print(etat)
-"""
 
-"""etat = {((0, 1), (1, 1)): -1,
-        ((1, 0), (1, 1)): -1,
-        ((1, 2), (1, 1)): 1,
-        ((2, 1), (1, 1)): 1,
-        ((2, 1), (1, 2)): -1}"""
-
-"""etat3 = {((1, 1), (1, 2)): 1,
-         ((1, 2), (2, 2)): 1,
-         ((2, 2), (2, 1)): 1,
-         ((2, 1), (1, 1)): 0}"""
-
-
-"""etat = {((0, 0), (0, 1)): 1,
-        ((0, 1), (1, 1)): 1,
-        ((1, 1), (1, 2)): 1,
-        ((1, 2), (2, 2)): 1,
-        ((2, 2), (2, 1)): 1,
-        ((2, 1), (3, 1)): 1,
-        ((3, 1), (3, 0)): 1,
-        ((3, 0), (2, 0)): 1,
-        ((2, 0), (1, 0)): 1,
-        ((1, 0), (0, 0)): 1}
-
-indices = [[3, 2, None, None, 0, None],
-           [1 , 3 , 1, None, 0, None],
-           [3, 2, None, None, None, None],
-           [None, None, None, None, 0, 1],
-           [None, None, None, None, 0, 1],
-           [None, None, None, None, 0, 1]]"""
-
-
-"""print(longueur_boucle(etat2, ((0, 0),(0, 1))))
-print(segments_testsV2(etat, (1, 1), est_trace))
-print(segments_testsV2(etat, (1, 1), est_interdit))
-print(segments_testsV2(etat, (1, 1), est_vierge))"""
-
-
-print("FIN DE ZONE DE TEST")
 
 
 # Boucle principale

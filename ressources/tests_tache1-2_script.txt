@@ -1,0 +1,54 @@
+# Zone de tests
+"""
+etat = {((0, 0), (0, 1)) : 1, ((1, 1), (1, 2)) : - 1}
+print(est_vierge(etat, ((0, 0), (0, 1))))   #False
+print(est_vierge(etat, ((1, 0), (0, 1))))   #True
+print(est_trace(etat, ((0, 0), (0, 1))))    #True
+print(est_trace(etat, ((1, 0), (0, 1))))    #False
+print(est_interdit(etat, ((0, 0), (0, 1)))) #False
+print(est_interdit(etat, ((1, 1), (1, 2)))) #True
+tracer_segment(etat, ((1, 0), (0, 1)))
+print(etat)
+interdire_segment(etat, ((1, 0), (2, 0)))
+print(etat)
+effacer_segment(etat, ((0, 0), (0, 1)))
+print(etat)
+"""
+
+"""etat = {((0, 1), (1, 1)): -1,
+        ((1, 0), (1, 1)): -1,
+        ((1, 2), (1, 1)): 1,
+        ((2, 1), (1, 1)): 1,
+        ((2, 1), (1, 2)): -1}"""
+
+"""etat3 = {((1, 1), (1, 2)): 1,
+         ((1, 2), (2, 2)): 1,
+         ((2, 2), (2, 1)): 1,
+         ((2, 1), (1, 1)): 0}"""
+
+
+"""etat = {((0, 0), (0, 1)): 1,
+        ((0, 1), (1, 1)): 1,
+        ((1, 1), (1, 2)): 1,
+        ((1, 2), (2, 2)): 1,
+        ((2, 2), (2, 1)): 1,
+        ((2, 1), (3, 1)): 1,
+        ((3, 1), (3, 0)): 1,
+        ((3, 0), (2, 0)): 1,
+        ((2, 0), (1, 0)): 1,
+        ((1, 0), (0, 0)): 1}
+indices = [[3, 2, None, None, 0, None],
+           [1 , 3 , 1, None, 0, None],
+           [3, 2, None, None, None, None],
+           [None, None, None, None, 0, 1],
+           [None, None, None, None, 0, 1],
+           [None, None, None, None, 0, 1]]"""
+
+
+"""print(longueur_boucle(etat2, ((0, 0),(0, 1))))
+print(segments_testsV2(etat, (1, 1), est_trace))
+print(segments_testsV2(etat, (1, 1), est_interdit))
+print(segments_testsV2(etat, (1, 1), est_vierge))"""
+
+
+print("FIN DE ZONE DE TEST")
