@@ -373,7 +373,7 @@ def fonction_choix_grille():
                ancrage = "nw", tag = "grille3")
     fltk.image(610, 215, "ressources/bouton_grille4.gif",
                ancrage = "nw", tag = "grille4")
-    fltk.texte(200, 20, "ressources/Choix de la grille :", couleur = "#4CFF00",
+    fltk.texte(200, 20, "Choix de la grille :", couleur = "#4CFF00",
                police = "sketchy in snow", taille = "50", tag = "choix")
     fltk.mise_a_jour()
     choix_grille = True
