@@ -431,7 +431,7 @@ def fonction_charger_grille():
         if clic_bouton(ev, 100, 270, (600, 60)) == True:
             nom_fichier = saisie_nom_fichier(sys.argv)
             fltk.texte(400, 300, nom_fichier, ancrage = "center",
-                       police = "ressources/sketchy in snow", taille = "50", tag = "nom")
+                       police = "sketchy in snow", taille = "50", tag = "nom")
         if tev == "Quitte":
             return "quitter"
         fltk.mise_a_jour()
@@ -528,7 +528,9 @@ def fenetre_trace(indices, taille_case, taille_marge):
                 # Trace les cases
                 if indices[j][i] is not None:
                     fltk.texte((sommet_x + sommet_x2)/2, (sommet_y + sommet_y2)/2,
-                               chaine=indices[j][i], couleur="#112BB3")
+                               chaine=indices[j][i], couleur="#112BB3",
+                               ancrage = "center", police = "sketchy in snow",
+                               taille = 50)
 
     return None
 
