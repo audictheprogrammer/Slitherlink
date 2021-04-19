@@ -1,6 +1,5 @@
 import fltk
 import sys
-import json
 # Slitherlink game by Audic XU the best and Damien BENAMARI the almost best.
 
 
@@ -41,8 +40,9 @@ def saisie_nom_fichier(argv):
                     return nom_fichier
                 if touche == "BackSpace" and lst_nom != []:
                     lst_nom.pop()
-            fltk.efface("lst_nom")
-            fltk.texte(200, 200, lst_nom, tag="lst_nom")
+            fltk.efface("nom")
+            fltk.texte(400, 300, lst_nom, ancrage = "center", 
+                       police = "sketchy in snow", taille = "50", tag="nom")
             fltk.mise_a_jour()
 
 
@@ -96,16 +96,23 @@ def fichier_vers_dico(nom_fichier):
     contenu = contenu[:-1]
     while len(contenu)!= 0:
         chaine_a = contenu[0:16]
-        cles.append(chaine_a)
+        elem_a = int(chaine_a[2])
+        elem_b = int(chaine_a[5])
+        elem_c = int(chaine_a[10])
+        elem_d = int(chaine_a[13])
+        tuple_a = (elem_a, elem_b)
+        tuple_b = (elem_c, elem_d)
+        res = (tuple_a, tuple_b)
+        cles.append(res)
         contenu = contenu[18:]
         if contenu[0] == "-":
             chaine_b = contenu[0:2]
             contenu = contenu[4:]
-            valeurs.append(chaine_b)
+            valeurs.append(int(chaine_b))
         else:
             chaine_b = contenu[0]
             contenu = contenu[3:]
-            valeurs.append(chaine_b)
+            valeurs.append(int(chaine_b))
     for i in range(len(cles)):
         dico[cles[i]] = valeurs[i]
     return dico
@@ -129,8 +136,6 @@ def sauvegarder(indices, etat):
         if clic_bouton(ev, 100, 270, (600, 60)) == True:
             fltk.efface("nom")
             nom_fichier = saisie_nom_fichier(sys.argv)
-            fltk.texte(400, 300, nom_fichier, ancrage = "center",
-                       police = "sketchy in snow", taille = "50", tag = "nom")
         if clic_bouton(ev, 300, 490, (200, 100)) == True:
             sauvegarde = False
         fltk.mise_a_jour()
@@ -293,8 +298,8 @@ def statut_case(indices, etat, case):
 
 
 def partie_finie(indices, etat):
-    for i in range(len(indices) - 1):
-        for j in range(len(indices)- 1):
+    for i in range(len(indices)):
+        for j in range(len(indices)):
             case = i, j
             res = statut_case(indices, etat, case)
             if res is not None and res != 0 :
@@ -407,6 +412,11 @@ def Slitherlink():
                 fltk.ferme_fenetre()
                 partie = False
                 menu = True
+            if jouer == "victoire":
+                partie = False
+                slitherlink = False
+                fltk.attend_clic_gauche()
+                fltk.ferme_fenetre()
             if len(jouer) == 3:
                 fltk.ferme_fenetre()
                 sauvegarde = True
@@ -549,8 +559,6 @@ def fonction_charger_grille():
         if clic_bouton(ev, 100, 270, (600, 60)) == True:
             fltk.efface("nom")
             nom_fichier = saisie_nom_fichier(sys.argv)
-            fltk.texte(400, 300, nom_fichier, ancrage = "center",
-                       police = "sketchy in snow", taille = "50", tag = "nom")
         if tev == "Quitte":
             return "quitter"
         fltk.mise_a_jour()
@@ -619,6 +627,13 @@ def fonction_jeu(indices, etat):
         elif tev == "Quitte":
             Jouer = False
             return "quitter"
+        if partie_finie(indices, etat) == True:
+            Jouer = False
+            t_pol = len(indices)*25
+            fltk.texte((lg + 250)//2, 265, "Bravo !!!", ancrage = "center",
+                       couleur = "#B6FF00", police = "sketchy in snow", 
+                       taille = str(t_pol))
+            return "victoire"
         fltk.mise_a_jour()
     fltk.ferme_fenetre()
     return False
