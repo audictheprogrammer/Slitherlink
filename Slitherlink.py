@@ -3,6 +3,7 @@ import sys
 import json
 # Slitherlink game by Audic XU the best and Damien BENAMARI the almost best.
 
+
 # TACHE 1 - STRUCTURES DE DONNEES
 def saisie_nom_fichier(argv):
     """Vérifie si le fichier a été saisi, sinon demande de le saisir.
@@ -17,7 +18,7 @@ def saisie_nom_fichier(argv):
         nom_fichier = ""
         touches = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l",
                    "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x",
-                   "y", "z", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+                   "y", "z"]
         lst_nom = []
         nom_fichier = ""
         saisie = True
@@ -26,8 +27,9 @@ def saisie_nom_fichier(argv):
             tev = fltk.type_ev(ev)
             if tev == "Touche":
                 touche = fltk.touche(ev)
-                print(touche)
-                if touche in touches:
+                # Str.isdigit() True: All characters are digits
+                # Str.lower(): returns a string where all characters are lower case
+                if touche.isdigit() or touche.lower() in touches:
                     lst_nom.append(touche)
                 if touche == "underscore":
                     lst_nom.append("_")
@@ -37,8 +39,10 @@ def saisie_nom_fichier(argv):
                     nom_fichier += ".txt"
                     saisie = False
                     return nom_fichier
-                if touche == "BackSpace":
+                if touche == "BackSpace" and lst_nom != []:
                     lst_nom.pop()
+            fltk.efface("lst_nom")
+            fltk.texte(200, 200, lst_nom, tag="lst_nom")
             fltk.mise_a_jour()
 
 
@@ -81,6 +85,7 @@ def fichier_vers_liste(nom_fichier):
             liste_temporaire.append(int(carac))
     return indices
 
+
 def fichier_vers_dico(nom_fichier):
     f = open(nom_fichier, "r")
     contenu = f.read()
@@ -89,7 +94,7 @@ def fichier_vers_dico(nom_fichier):
     dico = {}
     contenu = contenu[1:]
     contenu = contenu[:-1]
-    while len(contenu)!= 0:        
+    while len(contenu)!= 0:
         chaine_a = contenu[0:16]
         cles.append(chaine_a)
         contenu = contenu[18:]
@@ -104,6 +109,7 @@ def fichier_vers_dico(nom_fichier):
     for i in range(len(cles)):
         dico[cles[i]] = valeurs[i]
     return dico
+
 
 def sauvegarder(indices, etat):
     fltk.efface_tout()
@@ -145,12 +151,9 @@ def sauvegarder(indices, etat):
     contenu_b = f_indices.write(chaine_b)
     f_indices.close()
     return None
-    
-            
 
 
 def est_trace(etat, seg):
-
     i_seg, j_seg = seg
     seg_inv = j_seg, i_seg
     if seg in etat and etat[seg] == 1:
@@ -158,6 +161,7 @@ def est_trace(etat, seg):
     if seg_inv in etat and etat[seg_inv] == 1:
         return True
     return False
+
 
 def est_interdit(etat, seg):
     i_seg, j_seg = seg
@@ -168,6 +172,7 @@ def est_interdit(etat, seg):
         return True
     return False
 
+
 def est_vierge(etat, seg):
     i_seg, j_seg = seg
     seg_inv = j_seg, i_seg
@@ -175,13 +180,16 @@ def est_vierge(etat, seg):
         return False
     return True
 
+
 def tracer_segment(etat, seg):
     effacer_segment(etat, seg)
     etat[seg] = 1
 
+
 def interdire_segment(etat, seg):
     effacer_segment(etat, seg)
     etat[seg] = -1
+
 
 def effacer_segment(etat, seg):
     """
@@ -192,6 +200,7 @@ def effacer_segment(etat, seg):
     if not est_vierge(etat, seg):
         etat.pop(seg)
 
+
 def segments_tests(etat, sommet, version):
     """Renvoie la liste des segments interdits adjacents à sommet dans etat
     Paramètres:
@@ -200,7 +209,6 @@ def segments_tests(etat, sommet, version):
     Return:
         lst -> List[Tuple(Tuple, Tuple)]
     """
-
     voisins = fonction_voisins(sommet)
     lst_traces = []
     lst_interdits = []
@@ -222,6 +230,7 @@ def segments_tests(etat, sommet, version):
         return lst_interdits
     if version == "vierges":
         return lst_vierges
+
 
 def fonction_voisins(sommet):
     i_sommet, j_sommet = sommet
@@ -253,7 +262,8 @@ def statut_case(indices, etat, case):
     """
     Renvoie le statut de la case: None, 0, 1 ou -1.
     Paramètres:
-        indices: List
+        indices -> List[List]
+                : [[None, None, None, None, 0, None], ...]
         etat: Dict
         case: Tuple
     Return:
@@ -279,8 +289,8 @@ def statut_case(indices, etat, case):
             return -1
 
 
-
 # Tache 2 - CONDITIONS DE VICTOIRE
+
 
 def partie_finie(indices, etat):
     for i in range(len(indices) - 1):
@@ -358,7 +368,8 @@ def Slitherlink():
             elif choix == "menu":
                 choix_grille = False
                 menu = True
-            elif choix == "grille1.txt" or choix == "grille2.txt" or choix == "grille3.txt" or choix =="grille4.txt":
+            elif choix == "grille1.txt" or choix == "grille2.txt" or\
+                 choix == "grille3.txt" or choix =="grille4.txt":
                 choix_grille = False
                 partie = True
                 fenetre = False
@@ -383,8 +394,6 @@ def Slitherlink():
                 etat = fichier_vers_dico(etat_fichier)
                 fltk.ferme_fenetre()
         elif partie:
-            print(indices)
-            print(etat)
             jouer = fonction_jeu(indices, etat)
             if jouer == "choix_grille":
                 choix_grille = True
@@ -408,9 +417,9 @@ def Slitherlink():
             sauvegarde = False
             slitherlink = False
             fltk.ferme_fenetre()
-            
 
     print("Fin du jeu")
+
 
 def fonction_menu():
     """Affiche un menu et renvoie le choix de l'utilisateur
@@ -548,9 +557,19 @@ def fonction_charger_grille():
 
 
 def fonction_jeu(indices, etat):
+    """Boucle pour la phase de jeu, doit retourner une instruction pour
+    la fonction Slitherlink dans la partie avec 'elif partie'.
+    Paramètres:
+        indices -> List[List]
+                : [[None, None, None, None, 0, None], ...]
+        etat -> Dict
+    Return:
+        instruction -> Str
+                    : "quitter", "menu", "sauvegarder", "solution", "choix_grille"
+    """
     taille_case = 75
     taille_marge = 40
-    initialisation_fenetre(indices, taille_case, taille_marge)
+    initialisation_fenetre(indices, etat, taille_case, taille_marge)
     lg = len(indices) * taille_case + 2 * taille_marge
     fltk.image(lg + 25, 40, "ressources/bouton_sauvergarder.gif", ancrage = "nw")
     fltk.image(lg + 25, 160, "ressources/bouton_solution.gif", ancrage = "nw")
@@ -565,7 +584,12 @@ def fonction_jeu(indices, etat):
             absc, ordo = fltk.abscisse(ev), fltk.ordonnee(ev)
             seg = indique_segment(absc, ordo, taille_case, taille_marge, indices)
             if seg is not None:
-                tracer_segment(etat, seg)
+                if est_trace(etat, seg):
+                    effacer_segment(etat, seg)
+                else:
+                    tracer_segment(etat, seg)
+            dessine_etat(indices, etat, taille_case, taille_marge)
+            dessine_indices(indices, etat, taille_case, taille_marge)
             if seg is None:
                 if clic_bouton(ev, lg + 135, 400, (100, 100)) == True:
                     Jouer = False
@@ -582,13 +606,16 @@ def fonction_jeu(indices, etat):
                 if clic_bouton(ev, lg + 25, 280, (200, 100)) == True:
                     Jouer = False
                     return "choix_grille"
-            dessine_etat(indices, etat, taille_case, taille_marge)
         elif tev == "ClicDroit":
             absc, ordo = fltk.abscisse(ev), fltk.ordonnee(ev)
             seg = indique_segment(absc, ordo, taille_case, taille_marge, indices)
             if seg is not None:
-                interdire_segment(etat, seg)
+                if est_interdit(etat, seg):
+                    effacer_segment(etat, seg)
+                else:
+                    interdire_segment(etat, seg)
             dessine_etat(indices, etat, taille_case, taille_marge)
+            dessine_indices(indices, etat, taille_case, taille_marge)
         elif tev == "Quitte":
             Jouer = False
             return "quitter"
@@ -597,7 +624,7 @@ def fonction_jeu(indices, etat):
     return False
 
 
-def initialisation_fenetre(indices, taille_case, taille_marge):
+def initialisation_fenetre(indices, etat, taille_case, taille_marge):
     """Initialise la fenêtre du jeu
     Paramètres:
         indices -> List[List], permet de connaitre la taille de la grille.
@@ -611,10 +638,12 @@ def initialisation_fenetre(indices, taille_case, taille_marge):
                    remplissage = "#00C8FF", tag = "cote_jeu")
     fltk.rectangle(largeur - 250, 0, largeur, hauteur, couleur = "#007F7F",
                    remplissage = "#007F7F", tag = "menu_cote")
-    fenetre_trace(indices, taille_case, taille_marge)
+    trace_fenetre(indices, taille_case, taille_marge)
+    dessine_etat(indices, etat, taille_case, taille_marge)
+    dessine_indices(indices, etat, taille_case, taille_marge)
     return None
 
-def fenetre_trace(indices, taille_case, taille_marge):
+def trace_fenetre(indices, taille_case, taille_marge):
     """Fonction auxiliaire permettant de tracer les cases
     Paramètres:
         indices -> List[List], permet de connaitre la taille de la grille.
@@ -635,13 +664,6 @@ def fenetre_trace(indices, taille_case, taille_marge):
                 # Trace les segments
                 fltk.rectangle(sommet_x, sommet_y, sommet_x2, sommet_y2,
                                couleur="#FFFFFF")
-
-                # Trace les cases
-                if indices[j][i] is not None:
-                    fltk.texte((sommet_x + sommet_x2)/2, (sommet_y + sommet_y2)/2,
-                               chaine=indices[j][i], couleur="#112BB3",
-                               ancrage = "center", police = "sketchy in snow",
-                               taille = 50)
 
     return None
 
@@ -676,6 +698,30 @@ def indique_segment(x, y, taille_case, taille_marge, indices):
     return None
 
 
+def dessine_indices(indices, etat, taille_case, taille_marge):
+    fltk.efface("indices")
+    for i in range(len(indices)):
+        for j in range(len(indices[0])):
+            sommet_x = taille_marge + i * taille_case
+            sommet_y = taille_marge + j * taille_case
+            sommet_x2 = taille_marge + (i + 1) * taille_case
+            sommet_y2 = taille_marge + (j + 1) * taille_case
+            if indices[j][i] is not None:
+                res = statut_case(indices, etat, (j, i))
+                if res == 0:
+                    couleur_indices = "#11BB3B"
+                elif res > 0:
+                    couleur_indices = "#112BB3"
+                elif res < 0:
+                    couleur_indices = "#B12B3B"
+                fltk.texte((sommet_x + sommet_x2)/2, (sommet_y + sommet_y2)/2,
+                           chaine=indices[j][i], couleur=couleur_indices,
+                           ancrage = "center", police = "sketchy in snow",
+                           taille = 50, tag="indices")
+
+
+
+
 def dessine_etat(indices, etat, taille_case, taille_marge):
     fltk.efface("etat")
     for i in range(len(indices) + 1):
@@ -696,7 +742,7 @@ def dessine_etat(indices, etat, taille_case, taille_marge):
                 y_sommet1 = taille_marge + j * taille_case
                 x_sommet2 = x_sommet1 + taille_case
                 fltk.ligne(x_sommet1, y_sommet1, x_sommet2, y_sommet1,
-                           couleur="red", epaisseur=3, tag="etat")
+                           couleur="#FF0000", epaisseur=3, tag="etat")
 
             if est_trace(etat, seg2):
                 x_sommet1 = taille_marge + i * taille_case
@@ -709,15 +755,11 @@ def dessine_etat(indices, etat, taille_case, taille_marge):
                 y_sommet1 = taille_marge + j * taille_case
                 y_sommet3 = y_sommet1 + taille_case
                 fltk.ligne(x_sommet1, y_sommet1, x_sommet1, y_sommet3,
-                           couleur="red", epaisseur=3, tag="etat")
-    print(etat)
-
-
-
-
+                           couleur="#FF0000", epaisseur=3, tag="etat")
 
 
 # Boucle principale
+
 
 if __name__ == "__main__":
     Slitherlink()
