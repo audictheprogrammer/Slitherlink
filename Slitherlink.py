@@ -1,5 +1,6 @@
 import fltk
 import sys
+import json
 # Slitherlink game by Audic XU the best and Damien BENAMARI the almost best.
 
 # TACHE 1 - STRUCTURES DE DONNEES
@@ -13,10 +14,32 @@ def saisie_nom_fichier(argv):
     if len(argv) >= 2:
         nom_fichier = argv[1]
     else:
-        nom_fichier = input("nom du fichier\n")
-    while not verif_grille(nom_fichier):
-        nom_fichier = input("nom du fichier\n")
-    return nom_fichier
+        nom_fichier = ""
+        touches = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l",
+                   "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x",
+                   "y", "z", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
+        lst_nom = []
+        nom_fichier = ""
+        saisie = True
+        while saisie:
+            ev = fltk.donne_ev()
+            tev = fltk.type_ev(ev)
+            if tev == "Touche":
+                touche = fltk.touche(ev)
+                print(touche)
+                if touche in touches:
+                    lst_nom.append(touche)
+                if touche == "underscore":
+                    lst_nom.append("_")
+                if touche == "Return":
+                    for lettre in lst_nom:
+                        nom_fichier += lettre
+                    nom_fichier += ".txt"
+                    saisie = False
+                    return nom_fichier
+                if touche == "BackSpace":
+                    lst_nom.pop()
+            fltk.mise_a_jour()
 
 
 def verif_grille(nom_fichier):
@@ -57,6 +80,73 @@ def fichier_vers_liste(nom_fichier):
         else:
             liste_temporaire.append(int(carac))
     return indices
+
+def fichier_vers_dico(nom_fichier):
+    f = open(nom_fichier, "r")
+    contenu = f.read()
+    cles = []
+    valeurs = []
+    dico = {}
+    contenu = contenu[1:]
+    contenu = contenu[:-1]
+    while len(contenu)!= 0:        
+        chaine_a = contenu[0:16]
+        cles.append(chaine_a)
+        contenu = contenu[18:]
+        if contenu[0] == "-":
+            chaine_b = contenu[0:2]
+            contenu = contenu[4:]
+            valeurs.append(chaine_b)
+        else:
+            chaine_b = contenu[0]
+            contenu = contenu[3:]
+            valeurs.append(chaine_b)
+    for i in range(len(cles)):
+        dico[cles[i]] = valeurs[i]
+    return dico
+
+def sauvegarder(indices, etat):
+    fltk.efface_tout()
+    fltk.mise_a_jour()
+    fltk.image(0, 0, "ressources/fond_d'ecran.gif",
+               ancrage = "nw", tag = "fond")
+    fltk.image(300, 490, "ressources/bouton_valider.gif",
+               ancrage = "nw", tag = "menu")
+    fltk.rectangle(100, 270, 700, 330, couleur = "black",
+                   remplissage = "white", tag = "barre_blanche")
+    fltk.texte(75, 70, "Saisissez le nom du fichier :", couleur = "#4CFF00",
+               police = "sketchy in snow", taille = "50", tag = "choix")
+    sauvegarde = True
+    while sauvegarde:
+        ev = fltk.donne_ev()
+        tev = fltk.type_ev(ev)
+        if clic_bouton(ev, 100, 270, (600, 60)) == True:
+            fltk.efface("nom")
+            nom_fichier = saisie_nom_fichier(sys.argv)
+            fltk.texte(400, 300, nom_fichier, ancrage = "center",
+                       police = "sketchy in snow", taille = "50", tag = "nom")
+        if clic_bouton(ev, 300, 490, (200, 100)) == True:
+            sauvegarde = False
+        fltk.mise_a_jour()
+    f_etat = open("etat_" + nom_fichier, "w")
+    chaine_a = str(etat)
+    contenu_a = f_etat.write(chaine_a)
+    f_etat.close()
+    f_indices = open(nom_fichier, "w")
+    chaine_b = ""
+    for liste in indices:
+        for elem in liste:
+            elem = str(elem)
+            if elem != "None":
+                chaine_b += elem
+            else:
+                chaine_b += "_"
+        chaine_b += "\n"
+    contenu_b = f_indices.write(chaine_b)
+    f_indices.close()
+    return None
+    
+            
 
 
 def est_trace(etat, seg):
@@ -240,6 +330,7 @@ def Slitherlink():
     choix_grille = False
     charger_grille = False
     partie = False
+    sauvegarde = False
     while slitherlink:
         if fenetre == False and partie == False:
             fltk.cree_fenetre(800, 600)
@@ -271,10 +362,11 @@ def Slitherlink():
                 choix_grille = False
                 partie = True
                 fenetre = False
+                indices = fichier_vers_liste(choix)
+                etat = {}
                 fltk.ferme_fenetre()
         elif charger_grille:
             charger = fonction_charger_grille()
-            nom_fichier = charger
             if charger == "quitter":
                 charger_grille = False
                 slitherlink = False
@@ -286,9 +378,14 @@ def Slitherlink():
                 charger_grille = False
                 partie = True
                 fenetre = False
+                nom_fichier, etat_fichier = charger
+                indices = fichier_vers_liste(nom_fichier)
+                etat = fichier_vers_dico(etat_fichier)
                 fltk.ferme_fenetre()
         elif partie:
-            jouer = fonction_jeu(fichier_vers_liste(nom_fichier), {})
+            print(indices)
+            print(etat)
+            jouer = fonction_jeu(indices, etat)
             if jouer == "choix_grille":
                 choix_grille = True
                 partie = False
@@ -301,6 +398,18 @@ def Slitherlink():
                 fltk.ferme_fenetre()
                 partie = False
                 menu = True
+            if len(jouer) == 3:
+                fltk.ferme_fenetre()
+                sauvegarde = True
+                partie = False
+        elif sauvegarde:
+            message, indices, etat = jouer
+            sauvegarder(indices, etat)
+            sauvegarde = False
+            slitherlink = False
+            fltk.ferme_fenetre()
+            
+
     print("Fin du jeu")
 
 def fonction_menu():
@@ -427,8 +536,9 @@ def fonction_charger_grille():
         if clic_bouton(ev, 500, 490, (200, 100)) == True:
             if nom_fichier is not None:
                 charger_grille = False
-                return nom_fichier
+                return nom_fichier, "etat_" + nom_fichier
         if clic_bouton(ev, 100, 270, (600, 60)) == True:
+            fltk.efface("nom")
             nom_fichier = saisie_nom_fichier(sys.argv)
             fltk.texte(400, 300, nom_fichier, ancrage = "center",
                        police = "sketchy in snow", taille = "50", tag = "nom")
@@ -441,11 +551,12 @@ def fonction_jeu(indices, etat):
     taille_case = 75
     taille_marge = 40
     initialisation_fenetre(indices, taille_case, taille_marge)
-    fltk.image(555, 40, "ressources/bouton_sauvergarder.gif", ancrage = "nw")
-    fltk.image(555, 160, "ressources/bouton_solution.gif", ancrage = "nw")
-    fltk.image(555, 280, "ressources/bouton_grille.gif", ancrage = "nw")
-    fltk.image(545, 400, "ressources/bouton_maison.gif", ancrage = "nw")
-    fltk.image(665, 400, "ressources/bouton_eteindre.gif", ancrage = "nw")
+    lg = len(indices) * taille_case + 2 * taille_marge
+    fltk.image(lg + 25, 40, "ressources/bouton_sauvergarder.gif", ancrage = "nw")
+    fltk.image(lg + 25, 160, "ressources/bouton_solution.gif", ancrage = "nw")
+    fltk.image(lg + 25, 280, "ressources/bouton_grille.gif", ancrage = "nw")
+    fltk.image(lg + 15, 400, "ressources/bouton_maison.gif", ancrage = "nw")
+    fltk.image(lg + 135, 400, "ressources/bouton_eteindre.gif", ancrage = "nw")
     Jouer = True
     while Jouer:
         ev = fltk.donne_ev()
@@ -456,19 +567,19 @@ def fonction_jeu(indices, etat):
             if seg is not None:
                 tracer_segment(etat, seg)
             if seg is None:
-                if clic_bouton(ev, 665, 400, (100, 100)) == True:
+                if clic_bouton(ev, lg + 135, 400, (100, 100)) == True:
                     Jouer = False
                     return "quitter"
-                if clic_bouton(ev, 545, 400, (100, 100)) == True:
+                if clic_bouton(ev, lg + 15, 400, (100, 100)) == True:
                     Jouer = False
                     return "menu"
-                if clic_bouton(ev, 555, 40, (200, 100)) == True:
+                if clic_bouton(ev, lg + 25, 40, (200, 100)) == True:
                     Jouer = False
-                    return "sauvegarder"
-                if clic_bouton(ev, 555, 160, (200, 100)) == True:
+                    return "sauvegarder", indices, etat
+                if clic_bouton(ev, lg + 25, 160, (200, 100)) == True:
                     Jouer = False
                     return "solution"
-                if clic_bouton(ev, 555, 280, (200, 100)) == True:
+                if clic_bouton(ev, lg + 25, 280, (200, 100)) == True:
                     Jouer = False
                     return "choix_grille"
             dessine_etat(indices, etat, taille_case, taille_marge)
@@ -494,7 +605,7 @@ def initialisation_fenetre(indices, taille_case, taille_marge):
         taille_marge -> Int
     """
     largeur = len(indices) * taille_case + 2 * taille_marge + 250
-    hauteur = len(indices) * taille_case + 2 * taille_marge
+    hauteur = 6 * taille_case + 2 * taille_marge
     fltk.cree_fenetre(largeur, hauteur)
     fltk.rectangle(0, 0, largeur - 250, hauteur, couleur = "#00C8FF",
                    remplissage = "#00C8FF", tag = "cote_jeu")
@@ -599,6 +710,7 @@ def dessine_etat(indices, etat, taille_case, taille_marge):
                 y_sommet3 = y_sommet1 + taille_case
                 fltk.ligne(x_sommet1, y_sommet1, x_sommet1, y_sommet3,
                            couleur="red", epaisseur=3, tag="etat")
+    print(etat)
 
 
 
