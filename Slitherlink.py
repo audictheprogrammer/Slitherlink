@@ -41,7 +41,7 @@ def saisie_nom_fichier(argv):
                 if touche == "BackSpace" and lst_nom != []:
                     lst_nom.pop()
             fltk.efface("nom")
-            fltk.texte(400, 300, lst_nom, ancrage = "center", 
+            fltk.texte(400, 300, lst_nom, ancrage = "center",
                        police = "sketchy in snow", taille = "50", tag="nom")
             fltk.mise_a_jour()
 
@@ -304,12 +304,35 @@ def partie_finie(indices, etat):
             res = statut_case(indices, etat, case)
             if res is not None and res != 0 :
                 return False
-    segment_depart = ((0, 0), (0, 1))  # à modifier
+    segment_depart = choix_segment_depart(indices)
+    if segment_depart == None:
+        lst_segment_depart = choix_segment_depart_de_secours(indices)
+        if lst_segment_depart == []:
+            return False
+        for segment_depart in lst_segment_depart:
+            if longueur_boucle(etat, segment_depart) is not None:
+                    return True
     if longueur_boucle(etat, segment_depart) is not None:
-        return True
+            return True
     else:
         return False
 
+
+def choix_segment_depart(indices):
+    for i in range(len(indices)):
+        for j in range(len(indices[0])):
+            if indices[i][j] == 3:
+                return ((i, j), (i, j + 1))
+
+
+def choix_segment_depart_de_secours(indices):
+    lst_segment_depart = []
+    for i in range(len(indices)):
+        for j in range((len(indices[0]))):
+            if indices[i][j] == 2:
+                lst_segment_depart.append(((i, j), (i, j + 1)))
+                lst_segment_depart.append(((i + 1, j), (i + 1, j + 1)))
+    return lst_segment_depart
 
 def longueur_boucle(etat, seg):
     i_seg, j_seg = seg
@@ -578,7 +601,7 @@ def fonction_jeu(indices, etat):
     taille_case = 75
     taille_marge = 40
     initialisation_fenetre(indices, etat, taille_case, taille_marge)
-    lg = len(indices) * taille_case + 2 * taille_marge
+    lg = len(indices[0]) * taille_case + 2 * taille_marge
     fltk.image(lg + 25, 40, "ressources/bouton_sauvergarder.gif", ancrage = "nw")
     fltk.image(lg + 25, 160, "ressources/bouton_solution.gif", ancrage = "nw")
     fltk.image(lg + 25, 280, "ressources/bouton_grille.gif", ancrage = "nw")
@@ -631,7 +654,7 @@ def fonction_jeu(indices, etat):
             Jouer = False
             t_pol = len(indices)*25
             fltk.texte((lg + 250)//2, 265, "Bravo !!!", ancrage = "center",
-                       couleur = "#B6FF00", police = "sketchy in snow", 
+                       couleur = "#B6FF00", police = "sketchy in snow",
                        taille = str(t_pol))
             return "victoire"
         fltk.mise_a_jour()
@@ -646,8 +669,8 @@ def initialisation_fenetre(indices, etat, taille_case, taille_marge):
         taille_case -> Int
         taille_marge -> Int
     """
-    largeur = len(indices) * taille_case + 2 * taille_marge + 250
-    hauteur = 6 * taille_case + 2 * taille_marge
+    largeur = len(indices[0]) * taille_case + 2 * taille_marge + 250
+    hauteur = max(6, len(indices)) * taille_case + 2 * taille_marge
     fltk.cree_fenetre(largeur, hauteur)
     fltk.rectangle(0, 0, largeur - 250, hauteur, couleur = "#00C8FF",
                    remplissage = "#00C8FF", tag = "cote_jeu")
@@ -665,8 +688,8 @@ def trace_fenetre(indices, taille_case, taille_marge):
         taille_case -> Int
         taille_marge -> Int
     """
-    for i in range(len(indices) + 1):
-        for j in range(len(indices[0]) + 1):
+    for i in range(len(indices[0]) + 1):
+        for j in range(len(indices) + 1):
             sommet_x = taille_marge + i * taille_case
             sommet_y = taille_marge + j * taille_case
             sommet_x2 = taille_marge + (i + 1) * taille_case
@@ -674,7 +697,7 @@ def trace_fenetre(indices, taille_case, taille_marge):
 
             # Trace les sommets
             fltk.cercle(sommet_x, sommet_y, r=5)
-            if i != len(indices) and j != len(indices[0]):
+            if i != len(indices[0]) and j != len(indices):
 
                 # Trace les segments
                 fltk.rectangle(sommet_x, sommet_y, sommet_x2, sommet_y2,
@@ -715,8 +738,8 @@ def indique_segment(x, y, taille_case, taille_marge, indices):
 
 def dessine_indices(indices, etat, taille_case, taille_marge):
     fltk.efface("indices")
-    for i in range(len(indices)):
-        for j in range(len(indices[0])):
+    for i in range(len(indices[0])):
+        for j in range(len(indices)):
             sommet_x = taille_marge + i * taille_case
             sommet_y = taille_marge + j * taille_case
             sommet_x2 = taille_marge + (i + 1) * taille_case
