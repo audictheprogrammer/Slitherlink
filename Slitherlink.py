@@ -747,9 +747,9 @@ def dessine_indices(indices, etat, taille_case, taille_marge):
             if indices[j][i] is not None:
                 res = statut_case(indices, etat, (j, i))
                 if res == 0:
-                    couleur_indices = "#11BB3B"
+                    couleur_indices = "#004A7F"
                 elif res > 0:
-                    couleur_indices = "#112BB3"
+                    couleur_indices = "#000000"
                 elif res < 0:
                     couleur_indices = "#B12B3B"
                 fltk.texte((sommet_x + sommet_x2)/2, (sommet_y + sommet_y2)/2,
