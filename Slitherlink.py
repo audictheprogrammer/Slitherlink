@@ -293,7 +293,6 @@ def statut_case(indices, etat, case):
         if nb_traces + nb_inter > indices[case[0]][case[1]]:
             return -1
 
-
 # Tache 2 - CONDITIONS DE VICTOIRE
 
 
@@ -551,7 +550,6 @@ def fonction_choix_grille():
             return "quitter"
         fltk.mise_a_jour()
 
-
 def fonction_charger_grille():
 
     fltk.efface_tout()
@@ -756,9 +754,6 @@ def dessine_indices(indices, etat, taille_case, taille_marge):
                            chaine=indices[j][i], couleur=couleur_indices,
                            ancrage = "center", police = "sketchy in snow",
                            taille = 50, tag="indices")
-
-
-
 
 def dessine_etat(indices, etat, taille_case, taille_marge):
     fltk.efface("etat")
