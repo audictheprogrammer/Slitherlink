@@ -356,6 +356,12 @@ def longueur_boucle(etat, seg):
 
 
 def Slitherlink():
+    lst_menu = [
+    {"xpos": 0, "ypos": 0, "nom": "ressources/fond_d'ecran_menu.gif", "dim": (800, 600), "message": "fond_menu"}, 
+    {"xpos": 300, "ypos": 195, "nom": "ressources/bouton_nouvelle_partie.gif", "dim": (200, 100), "message": "choix_grille"}, 
+    {"xpos": 300, "ypos": 330, "nom": "ressources/bouton_charger_partie.gif", "dim": (200, 100), "message": "charger_grille"}, 
+    {"xpos": 300, "ypos": 465, "nom": "ressources/bouton_quitter.gif", "dim": (200, 100), "message": "quitter"}
+    ]
     print("Debut du jeu")
     fltk.cree_fenetre(800, 600)
     fenetre = True
@@ -370,7 +376,7 @@ def Slitherlink():
             fltk.cree_fenetre(800, 600)
             fenetre = True
         if menu:
-            res = fonction_menu()
+            res = fonction_menu(lst_menu)
             if res == "choix_grille":
                 choix_grille = True
                 menu = False
@@ -450,7 +456,7 @@ def Slitherlink():
     print("Fin du jeu")
 
 
-def fonction_menu():
+def fonction_menu(lst_menu):
     """Affiche un menu et renvoie le choix de l'utilisateur
     Return:
         Str: "choix_grille"
@@ -458,29 +464,19 @@ def fonction_menu():
         None"""
     # initialisation
     fltk.efface_tout()
+    for dico in lst_menu:
+        fltk.image(dico["xpos"], dico["ypos"], dico["nom"], ancrage = "nw")
     fltk.mise_a_jour()
-    fltk.image(0, 0, "ressources/fond_d'ecran_menu.gif",
-               ancrage = "nw", tag = "fond_menu")
-    fltk.image(300, 195, "ressources/bouton_nouvelle_partie.gif",
-               ancrage = "nw", tag = "new_partie")
-    fltk.image(300, 330, "ressources/bouton_charger_partie.gif",
-               ancrage = "nw", tag = "charger_partie")
-    fltk.image(300, 465, "ressources/bouton_quitter.gif",
-               ancrage = "nw", tag = "quitter")
     menu = True
     # Boucle majeure
     while menu:
         ev = fltk.donne_ev()
         tev = fltk.type_ev(ev)
-        if clic_bouton(ev, 300, 195, (200, 100)) == True:
-            menu = False
-            return "choix_grille"
-        if clic_bouton(ev, 300, 330, (200, 100)) == True:
-            menu = False
-            return "charger_grille"
-        if clic_bouton(ev, 300, 465, (200, 100)) == True:
-            menu = False
-            return "quitter"
+        for dico in lst_menu:
+            if dico["message"] != "fond_menu":
+                if clic_bouton(ev, dico["xpos"], dico["ypos"], dico["dim"]) == True:
+                    menu = False
+                    return dico["message"]
         if tev == "Quitte":
             menu = False
             return "quitter"
@@ -498,16 +494,9 @@ def clic_bouton(ev, absc, ordo, dimension):
 
 
 def fonction_choix_grille():
-    """
-    if choix_grille:
-        fltk.cree_fenetre(800, 600)
-        fltk.image(0, 0, "ressources/fond_d'ecran.gif",
-                   ancrage = "nw", tag = "fond")
-        fltk.image(300, 650, "ressources/bouton_quitter.gif",
-                   ancrage = "nw", tag = "quitter")"""
+
 
     fltk.efface_tout()
-    fltk.mise_a_jour()
     fltk.image(0, 0, "ressources/fond_d'ecran.gif",
                ancrage = "nw", tag = "fond")
     fltk.image(300, 490, "ressources/bouton_menu.gif",
