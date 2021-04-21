@@ -303,34 +303,31 @@ def partie_finie(indices, etat):
             res = statut_case(indices, etat, case)
             if res is not None and res != 0 :
                 return False
-    segment_depart = choix_segment_depart(indices)
-    if segment_depart == None:
-        lst_segment_depart = choix_segment_depart_de_secours(indices)
+    lst_segment_depart = choix_segment_depart(indices, 3)
+    if lst_segment_depart == []:
+        lst_segment_depart = choix_segment_depart(indices, 2)
         if lst_segment_depart == []:
-            return False
-        for segment_depart in lst_segment_depart:
-            if longueur_boucle(etat, segment_depart) is not None:
-                    return True
-    if longueur_boucle(etat, segment_depart) is not None:
+            lst_segment_depart = choix_segment_depart(indices, 1)
+            if lst_segment_depart == []:
+                return False
+    for segment_depart in lst_segment_depart:
+        if longueur_boucle(etat, segment_depart) is not None:
             return True
     else:
         return False
 
 
-def choix_segment_depart(indices):
-    for i in range(len(indices)):
-        for j in range(len(indices[0])):
-            if indices[i][j] == 3:
-                return ((i, j), (i, j + 1))
-
-
-def choix_segment_depart_de_secours(indices):
+def choix_segment_depart(indices, n):
     lst_segment_depart = []
     for i in range(len(indices)):
-        for j in range((len(indices[0]))):
-            if indices[i][j] == 2:
-                lst_segment_depart.append(((i, j), (i, j + 1)))
-                lst_segment_depart.append(((i + 1, j), (i + 1, j + 1)))
+        for j in range(len(indices[0])):
+            if n == 3:
+                if indices[i][j] == n:
+                    lst_segment_depart.append(((i, j), (i, j + 1)))
+            if n == 2 or n == 1:
+                if indices[i][j] == n:
+                    lst_segment_depart.append(((i, j), (i, j + 1)))
+                    lst_segment_depart.append(((i + 1, j), (i + 1, j + 1)))
     return lst_segment_depart
 
 def longueur_boucle(etat, seg):
