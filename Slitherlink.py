@@ -400,6 +400,9 @@ def initialisation_fenetre(indices, etat, taille_case, taille_marge):
     dessine_indices(indices, etat, taille_case, taille_marge)
     return None
 
+def calcul_sommets(taille_marge, taille_case, coef):
+    return taille_marge + coef * taille_case
+
 def trace_fenetre(indices, taille_case, taille_marge):
     """Fonction auxiliaire permettant de tracer les cases
     Paramètres:
@@ -407,20 +410,20 @@ def trace_fenetre(indices, taille_case, taille_marge):
         taille_case -> Int
         taille_marge -> Int
     """
+
     for i in range(len(indices[0]) + 1):
         for j in range(len(indices) + 1):
-            sommet_x = taille_marge + i * taille_case
-            sommet_y = taille_marge + j * taille_case
-            sommet_x2 = taille_marge + (i + 1) * taille_case
-            sommet_y2 = taille_marge + (j + 1) * taille_case
-
+            sommets_x = []
+            sommets_y = []
+            for k in range(2):
+                sommets_x.append(calcul_sommets(taille_marge, taille_case, i + k))
+                sommets_y.append(calcul_sommets(taille_marge, taille_case, j + k))
             # Trace les sommets
-            fltk.cercle(sommet_x, sommet_y, r=5)
+            fltk.cercle(sommets_x[0], sommets_y[0], r=5)
             if i != len(indices[0]) and j != len(indices):
-
                 # Trace les segments
-                fltk.rectangle(sommet_x, sommet_y, sommet_x2, sommet_y2,
-                               couleur="#FFFFFF")
+                fltk.rectangle(sommets_x[0], sommets_y[0], sommets_x[1], 
+                               sommets_y[1], couleur="#FFFFFF")
 
     return None
 
@@ -428,29 +431,29 @@ def trace_fenetre(indices, taille_case, taille_marge):
 def indique_segment(x, y, taille_case, taille_marge, indices):
     for i in range(len(indices)):
         for j in range(len(indices[0])):
-            sommet_x = taille_marge + i * taille_case
-            sommet_y = taille_marge + j * taille_case
-            sommet_x2 = taille_marge + (i + 1) * taille_case
-            sommet_y2 = taille_marge + (j + 1) * taille_case
+            sommets_x = []
+            sommets_y = []
+            for k in range(2):
+                sommets_x.append(calcul_sommets(taille_marge, taille_case, i + k))
+                sommets_y.append(calcul_sommets(taille_marge, taille_case, j + k))            
             # dx pour décalage x, idem pour dy
             dx = 0.2 * taille_case
             dy = 0.2 * taille_case
-
-            if sommet_x <= x <= sommet_x2 and\
-               sommet_y - dy <= y <= sommet_y + dy:
+            if sommets_x[0] <= x <= sommets_x[1] and\
+               sommets_y[0] - dy <= y <= sommets_y[0] + dy:
                return ((j, i), (j, i + 1))
-            if sommet_y <= y <= sommet_y2 and\
-               sommet_x - dx <= x <= sommet_x + dx:
+            if sommets_y[0] <= y <= sommets_y[1] and\
+               sommets_x[0] - dx <= x <= sommets_x[0] + dx:
                return ((j, i), (j + 1, i))
 
             # Pour les cas qui n'ont pas été pris en compte
             if i == len(indices) - 1:
-                if sommet_x2 - dx <= x <= sommet_x2 + dx and\
-                   sommet_y <= y <= sommet_y2:
+                if sommets_x[1] - dx <= x <= sommets_x[1] + dx and\
+                   sommets_y[1] <= y <= sommets_y[0]:
                    return ((j, i + 1), (j + 1, i + 1))
             if j == len(indices[0]) - 1:
-                if sommet_x <= x <= sommet_x2 and\
-                   sommet_y2 - dy <= y <= sommet_y2 + dy:
+                if sommets_x[0] <= x <= sommets_x[1] and\
+                   sommets_y[1] - dy <= y <= sommets_y[1] + dy:
                     return ((j + 1, i), (j + 1, i + 1))
     return None
 
@@ -459,10 +462,8 @@ def dessine_indices(indices, etat, taille_case, taille_marge):
     fltk.efface("indices")
     for i in range(len(indices[0])):
         for j in range(len(indices)):
-            sommet_x = taille_marge + i * taille_case
-            sommet_y = taille_marge + j * taille_case
-            sommet_x2 = taille_marge + (i + 1) * taille_case
-            sommet_y2 = taille_marge + (j + 1) * taille_case
+            x_mid = calcul_sommets(taille_marge, taille_case, i + 0.5)
+            y_mid = calcul_sommets(taille_marge, taille_case, j + 0.5)
             if indices[j][i] is not None:
                 res = statut_case(indices, etat, (j, i))
                 if res == 0:
@@ -471,45 +472,37 @@ def dessine_indices(indices, etat, taille_case, taille_marge):
                     couleur_indices = "#000000"
                 elif res < 0:
                     couleur_indices = "#B12B3B"
-                fltk.texte((sommet_x + sommet_x2)/2, (sommet_y + sommet_y2)/2,
-                           chaine=indices[j][i], couleur=couleur_indices,
-                           ancrage = "center", police = "sketchy in snow",
-                           taille = 50, tag="indices")
+                fltk.texte(x_mid, y_mid, chaine = indices[j][i], 
+                    couleur = couleur_indices, ancrage = "center",
+                    police = "sketchy in snow", taille = 50, tag="indices")
 
 def dessine_etat(indices, etat, taille_case, taille_marge):
     fltk.efface("etat")
     for i in range(len(indices) + 1):
         for j in range(len(indices[0]) + 1):
-            sommet1 = (j, i)
-            sommet2 = (j, i + 1)
-            sommet3 = (j + 1, i)
-            seg1 = (sommet1, sommet2)
-            seg2 = (sommet1, sommet3)
-            if est_trace(etat, seg1):
-                x_sommet1 = taille_marge + i * taille_case
-                y_sommet1 = taille_marge + j * taille_case
-                x_sommet2 = x_sommet1 + taille_case
-                fltk.ligne(x_sommet1, y_sommet1, x_sommet2, y_sommet1,
-                           couleur="#004A7F", epaisseur=3, tag="etat")
-            elif est_interdit(etat, seg1):
-                x_sommet1 = taille_marge + i * taille_case
-                y_sommet1 = taille_marge + j * taille_case
-                x_sommet2 = x_sommet1 + taille_case
-                fltk.ligne(x_sommet1, y_sommet1, x_sommet2, y_sommet1,
-                           couleur="#FF0000", epaisseur=3, tag="etat")
+            sommets = [(j, i), (j, i + 1), (j + 1, i)]
+            segments = [(sommets[0], sommets[1]), (sommets[0], sommets[2])]
+            x_sommets = []
+            y_sommets = []
+            for a in range(2):
+                x_sommets.append(calcul_sommets(taille_marge, taille_case, (i + a)))
+                y_sommets.append(calcul_sommets(taille_marge, taille_case, (j + a)))
+            for k in range (2):
+                if est_trace(etat, segments[k]):
+                    trace_ligne(k, x_sommets[0], y_sommets[0], x_sommets[1], y_sommets[1], "#004A7F")
+                elif est_interdit(etat, segments[k]):
+                    trace_ligne(k, x_sommets[0], y_sommets[0], x_sommets[1], y_sommets[1], "#FF0000")
 
-            if est_trace(etat, seg2):
-                x_sommet1 = taille_marge + i * taille_case
-                y_sommet1 = taille_marge + j * taille_case
-                y_sommet3 = y_sommet1 + taille_case
-                fltk.ligne(x_sommet1, y_sommet1, x_sommet1, y_sommet3,
-                           couleur="#004A7F", epaisseur=3, tag="etat")
-            elif est_interdit(etat, seg2):
-                x_sommet1 = taille_marge + i * taille_case
-                y_sommet1 = taille_marge + j * taille_case
-                y_sommet3 = y_sommet1 + taille_case
-                fltk.ligne(x_sommet1, y_sommet1, x_sommet1, y_sommet3,
-                           couleur="#FF0000", epaisseur=3, tag="etat")
+#fonction pour dessine_etat
+def trace_ligne(k, x_sommet1, y_sommet1, x_sommet2, y_sommet3, couleurs):
+    if k == 0:
+        fltk.ligne(x_sommet1, y_sommet1, x_sommet2, y_sommet1,
+                   couleur = couleurs, epaisseur=3, tag="etat")
+    if k == 1:
+        fltk.ligne(x_sommet1, y_sommet1, x_sommet1, y_sommet3,
+                   couleur = couleurs, epaisseur=3, tag="etat")
+
+
 
 def fichier_vers_liste(nom_fichier):
     """Convertie le fichier indiqué en liste de liste.
