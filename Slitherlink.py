@@ -301,11 +301,6 @@ def clic_bouton(ev, absc, ordo, dimension):
                 return True
             return False
 
-
-
-
-
-
 def fonction_jeu(indices, etat):
     """Boucle pour la phase de jeu, doit retourner une instruction pour
     la fonction Slitherlink dans la partie avec 'elif partie'.
@@ -449,13 +444,14 @@ def indique_segment(x, y, taille_case, taille_marge, indices):
             # Pour les cas qui n'ont pas été pris en compte
             if i == len(indices) - 1:
                 if sommets_x[1] - dx <= x <= sommets_x[1] + dx and\
-                   sommets_y[1] <= y <= sommets_y[0]:
+                   sommets_y[0] <= y <= sommets_y[1]:
                    return ((j, i + 1), (j + 1, i + 1))
             if j == len(indices[0]) - 1:
                 if sommets_x[0] <= x <= sommets_x[1] and\
                    sommets_y[1] - dy <= y <= sommets_y[1] + dy:
                     return ((j + 1, i), (j + 1, i + 1))
     return None
+
 
 
 def dessine_indices(indices, etat, taille_case, taille_marge):
