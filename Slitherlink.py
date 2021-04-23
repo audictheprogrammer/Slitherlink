@@ -265,7 +265,7 @@ def affiche_images(lst):
         fltk.image(dico["xpos"], dico["ypos"], dico["nom"], ancrage = "nw")
     fltk.mise_a_jour()
     
-def menu(page, lst):
+def menus(page, lst):
     if page == "charger_grille":
         nom_fichier = None
     boucle = True
@@ -617,7 +617,7 @@ def Slitherlink():
             fenetre = True
         if menu:
             affiche_images(lst_menu)
-            res = menu(menu, lst_menu)
+            res = menus(menu, lst_menu)
             if res == "choix_grille":
                 choix_grille = True
                 menu = False
@@ -633,7 +633,7 @@ def Slitherlink():
             affiche_images(lst_choix)
             fltk.texte(200, 20, "Choix de la grille :", couleur = "#4CFF00",
                police = "sketchy in snow", taille = "50", tag = "choix")
-            choix = menu(choix_grille, lst_choix)
+            choix = menus(choix_grille, lst_choix)
             nom_fichier = choix
             if choix == "quitter":
                 choix_grille = False
@@ -654,7 +654,7 @@ def Slitherlink():
             affiche_images(lst_charger)
             fltk.texte(75, 70, "Saisissez le nom du fichier :", couleur = "#4CFF00",
                police = "sketchy in snow", taille = "50", tag = "choix")
-            charger = menu("charger_grille", lst_charger)
+            charger = menus("charger_grille", lst_charger)
             if charger == "quitter":
                 charger_grille = False
                 slitherlink = False
