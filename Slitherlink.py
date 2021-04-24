@@ -3,7 +3,9 @@ import sys
 # Slitherlink game by Audic XU the best and Damien BENAMARI the almost best.
 
 
-# TACHE 1 - STRUCTURES DE DONNEES
+# Tache 1 - STRUCTURES DE DONNEES
+
+
 def saisie_nom_fichier(argv):
     """Vérifie si le fichier a été saisi, sinon demande de le saisir.
     Paramètres:
@@ -11,39 +13,11 @@ def saisie_nom_fichier(argv):
     Return:
         nom_fichier -> Str
     """
-    if len(argv) >= 2:
-        nom_fichier = argv[1]
+
+    if len(sys.argv) == 2:
+        return sys.argv[1]
     else:
-        nom_fichier = ""
-        touches = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l",
-                   "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x",
-                   "y", "z"]
-        lst_nom = []
-        nom_fichier = ""
-        saisie = True
-        while saisie:
-            ev = fltk.donne_ev()
-            tev = fltk.type_ev(ev)
-            if tev == "Touche":
-                touche = fltk.touche(ev)
-                # Str.isdigit() True: All characters are digits
-                # Str.lower(): returns a string where all characters are lower case
-                if touche.isdigit() or touche.lower() in touches:
-                    lst_nom.append(touche)
-                if touche == "underscore":
-                    lst_nom.append("_")
-                if touche == "Return":
-                    for lettre in lst_nom:
-                        nom_fichier += lettre
-                    nom_fichier += ".txt"
-                    saisie = False
-                    return nom_fichier
-                if touche == "BackSpace" and lst_nom != []:
-                    lst_nom.pop()
-            fltk.efface("nom")
-            fltk.texte(400, 300, lst_nom, ancrage = "center",
-                       police = "sketchy in snow", taille = "50", tag="nom")
-            fltk.mise_a_jour()
+        return "grille0.txt"
 
 
 def verif_grille(nom_fichier):
@@ -264,7 +238,7 @@ def affiche_images(lst):
     for dico in lst:
         fltk.image(dico["xpos"], dico["ypos"], dico["nom"], ancrage = "nw")
     fltk.mise_a_jour()
-    
+
 def menus(page, lst):
     if page == "charger_grille":
         nom_fichier = None
@@ -281,7 +255,7 @@ def menus(page, lst):
                     return nom_fichier, "etat_" + nom_fichier
             if clic_bouton(ev, 100, 270, (600, 60)) == True:
                 fltk.efface("nom")
-                nom_fichier = saisie_nom_fichier(sys.argv) 
+                nom_fichier = saisie_nom_fichier_graphique()
         if tev == "Quitte":
             return "quitter"
         fltk.mise_a_jour()
@@ -334,13 +308,13 @@ def event(ev, lst):
         if dico["message"] != "inutile":
             if clic_bouton(ev, dico["xpos"], dico["ypos"], dico["dim"]) == True:
                 return dico["message"]
-            
+
 def partie(ev, etat, lst, lst_jeu, taille_case, taille_marge, indices):
     tev = fltk.type_ev(ev)
     for elem in lst:
         if tev == elem:
             absc, ordo = fltk.abscisse(ev), fltk.ordonnee(ev)
-            seg = indique_segment(absc, ordo, taille_case, taille_marge, indices)   
+            seg = indique_segment(absc, ordo, taille_case, taille_marge, indices)
             if seg is not None:
                 if elem == "ClicGauche":
                     if est_trace(etat, seg):
@@ -400,7 +374,7 @@ def trace_fenetre(indices, taille_case, taille_marge):
             fltk.cercle(sommets_x[0], sommets_y[0], r=5)
             if i != len(indices[0]) and j != len(indices):
                 # Trace les segments
-                fltk.rectangle(sommets_x[0], sommets_y[0], sommets_x[1], 
+                fltk.rectangle(sommets_x[0], sommets_y[0], sommets_x[1],
                                sommets_y[1], couleur="#FFFFFF")
 
     return None
@@ -413,7 +387,7 @@ def indique_segment(x, y, taille_case, taille_marge, indices):
             sommets_y = []
             for k in range(2):
                 sommets_x.append(calcul_sommets(taille_marge, taille_case, i + k))
-                sommets_y.append(calcul_sommets(taille_marge, taille_case, j + k))            
+                sommets_y.append(calcul_sommets(taille_marge, taille_case, j + k))
             # dx pour décalage x, idem pour dy
             dx = 0.2 * taille_case
             dy = 0.2 * taille_case
@@ -438,6 +412,7 @@ def indique_segment(x, y, taille_case, taille_marge, indices):
 
 
 def dessine_indices(indices, etat, taille_case, taille_marge):
+    """Retrace tous les segments en fonction de la variable indices"""
     fltk.efface("indices")
     for i in range(len(indices[0])):
         for j in range(len(indices)):
@@ -451,11 +426,12 @@ def dessine_indices(indices, etat, taille_case, taille_marge):
                     couleur_indices = "#000000"
                 elif res < 0:
                     couleur_indices = "#B12B3B"
-                fltk.texte(x_mid, y_mid, chaine = indices[j][i], 
+                fltk.texte(x_mid, y_mid, chaine = indices[j][i],
                     couleur = couleur_indices, ancrage = "center",
                     police = "sketchy in snow", taille = 50, tag="indices")
 
 def dessine_etat(indices, etat, taille_case, taille_marge):
+    """Retrace tous les segments en fonction de la variable etat"""
     fltk.efface("etat")
     for i in range(len(indices) + 1):
         for j in range(len(indices[0]) + 1):
@@ -474,12 +450,58 @@ def dessine_etat(indices, etat, taille_case, taille_marge):
 
 #fonction pour dessine_etat
 def trace_ligne(k, x_sommet1, y_sommet1, x_sommet2, y_sommet3, couleurs):
+    """Sous-fonction de dessine_etat
+    Paramètres:
+        k -> Int
+        x_sommet1 -> Int
+        y_sommet1 -> Int
+        x_sommet2 -> Int
+        y_sommet3 -> Int
+        couleurs -> Str, une couleur de type: "#FF00FF"
+    """
     if k == 0:
         fltk.ligne(x_sommet1, y_sommet1, x_sommet2, y_sommet1,
                    couleur = couleurs, epaisseur=3, tag="etat")
     if k == 1:
         fltk.ligne(x_sommet1, y_sommet1, x_sommet1, y_sommet3,
                    couleur = couleurs, epaisseur=3, tag="etat")
+
+
+def saisie_nom_fichier_graphique():
+    """Permet de saisir le nom du fichier pour choisir la partie à charger.
+    """
+
+    nom_fichier = ""
+    touches = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l",
+               "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x",
+               "y", "z"]
+    lst_nom = []
+    nom_fichier = ""
+    saisie = True
+    while saisie:
+        ev = fltk.donne_ev()
+        tev = fltk.type_ev(ev)
+        if tev == "Touche":
+            touche = fltk.touche(ev)
+            # Str.isdigit() True: All characters are digits
+            # Str.lower(): returns a string where all characters are lower case
+            if touche.isdigit() or touche.lower() in touches:
+                lst_nom.append(touche)
+            if touche == "underscore":
+                lst_nom.append("_")
+            if touche == "Return":
+                for lettre in lst_nom:
+                    nom_fichier += lettre
+                nom_fichier += ".txt"
+                saisie = False
+                return nom_fichier
+            if touche == "BackSpace" and lst_nom != []:
+                lst_nom.pop()
+        fltk.efface("nom")
+        fltk.texte(400, 300, lst_nom, ancrage = "center",
+                   police = "sketchy in snow", taille = "50", tag="nom")
+        fltk.mise_a_jour()
+
 
 
 
@@ -555,7 +577,7 @@ def sauvegarder(indices, etat):
         tev = fltk.type_ev(ev)
         if clic_bouton(ev, 100, 270, (600, 60)) == True:
             fltk.efface("nom")
-            nom_fichier = saisie_nom_fichier(sys.argv)
+            nom_fichier = saisie_nom_fichier_graphique()
         if clic_bouton(ev, 300, 490, (200, 100)) == True:
             sauvegarde = False
         fltk.mise_a_jour()
@@ -582,9 +604,9 @@ def Slitherlink():
     taille_case = 75
     taille_marge = 40
     lst_menu = [
-    {"xpos": 0, "ypos": 0, "nom": "ressources/fond_d'ecran_menu.gif", "dim": (800, 600), "message": "inutile"}, 
-    {"xpos": 300, "ypos": 195, "nom": "ressources/bouton_nouvelle_partie.gif", "dim": (200, 100), "message": "choix_grille"}, 
-    {"xpos": 300, "ypos": 330, "nom": "ressources/bouton_charger_partie.gif", "dim": (200, 100), "message": "charger_grille"}, 
+    {"xpos": 0, "ypos": 0, "nom": "ressources/fond_d'ecran_menu.gif", "dim": (800, 600), "message": "inutile"},
+    {"xpos": 300, "ypos": 195, "nom": "ressources/bouton_nouvelle_partie.gif", "dim": (200, 100), "message": "choix_grille"},
+    {"xpos": 300, "ypos": 330, "nom": "ressources/bouton_charger_partie.gif", "dim": (200, 100), "message": "charger_grille"},
     {"xpos": 300, "ypos": 465, "nom": "ressources/bouton_quitter.gif", "dim": (200, 100), "message": "quitter"}
     ]
     lst_choix = [
@@ -596,9 +618,9 @@ def Slitherlink():
     {"xpos": 610, "ypos": 215, "nom": "ressources/bouton_grille4.gif", "dim": (150, 150), "message": "grille4.txt"}
         ]
     lst_charger = [
-    {"xpos": 0, "ypos": 0, "nom": "ressources/fond_d'ecran.gif", "dim": (800, 600), "message": "inutile"}, 
-    {"xpos": 100, "ypos": 490, "nom": "ressources/bouton_menu.gif", "dim": (200, 100), "message": "menu"}, 
-    {"xpos": 500, "ypos": 490, "nom": "ressources/bouton_valider.gif", "dim": (200, 100), "message": "inutile"}, 
+    {"xpos": 0, "ypos": 0, "nom": "ressources/fond_d'ecran.gif", "dim": (800, 600), "message": "inutile"},
+    {"xpos": 100, "ypos": 490, "nom": "ressources/bouton_menu.gif", "dim": (200, 100), "message": "menu"},
+    {"xpos": 500, "ypos": 490, "nom": "ressources/bouton_valider.gif", "dim": (200, 100), "message": "inutile"},
     {"xpos": 100, "ypos": 270, "nom": "ressources/barre.gif", "dim": (600, 60), "message": "inutile"}
     ]
     lst_condition = ["ClicGauche", "ClicDroit"]
@@ -708,6 +730,75 @@ def Slitherlink():
             fltk.ferme_fenetre()
 
     print("Fin du jeu")
+
+
+# Tache 4 - RECHERCHE DE SOLUTIONS
+
+def applique_solveur(grille):
+    etat_temporaire = {}
+    indices = fichier_vers_liste(grille)
+    lst_segment_depart = choix_segment_depart(indices, 3)
+    if lst_segment_depart == []:
+        lst_segment_depart = choix_segment_depart(indices, 2)
+        if lst_segment_depart == []:
+            lst_segment_depart = choix_segment_depart(indices, 1)
+
+    for segment_depart in lst_segment_depart:
+        sommet_depart, sommet_courant = segment_depart
+        tracer_segment(etat_temporaire, segment_depart)
+        res = solveur(indices, etat_temporaire, sommet_courant)
+        if res is not None:
+            print(f"Solution trouvé: \n{res}")
+            return res
+        effacer_segment(etat_temporaire, segment_depart)
+
+    print("Pas de solution")
+    return None
+
+
+def solveur(indices, etat, sommet):
+    i, j = sommet
+    if partie_finie(indices, etat) is True:
+        return etat
+    elif i > len(indices) or j > len(indices[0]) or i < 0 or j < 0:
+        return None
+    else:
+        if est_trace(etat, ((i, j), (i + 1, j))) is False:
+            tracer_segment(etat, ((i, j), (i + 1, j)))
+            res = solveur(indices, etat, (i + 1, j))
+            if res is not None:
+                return res
+            effacer_segment(etat, ((i, j), (i + 1, j)))
+
+        if est_trace(etat, ((i, j) ,(i - 1, j))) is False:
+            tracer_segment(etat, ((i, j), (i - 1, j)))
+            res = solveur(indices, etat, (i - 1, j))
+            if res is not None:
+                return res
+            effacer_segment(etat, ((i, j),(i - 1, j)))
+
+        if est_trace(etat, ((i, j) ,(i, j + 1))) is False:
+            tracer_segment(etat, ((i, j), (i, j + 1)))
+            res = solveur(indices, etat, (i, j + 1))
+            if res is not None:
+                return res
+            effacer_segment(etat, ((i, j), (i, j + 1)))
+
+        if est_trace(etat, ((i, j) ,(i, j - 1))) is False:
+            tracer_segment(etat, ((i, j), (i, j - 1)))
+            res = solveur(indices, etat, (i, j - 1))
+            if res is not None:
+                return res
+            effacer_segment(etat, ((i, j), (i, j - 1)))
+    return None
+
+
+
+
+nom_fichier = saisie_nom_fichier(sys.argv)
+applique_solveur(nom_fichier)
+
+
 
 if __name__ == "__main__":
     Slitherlink()
