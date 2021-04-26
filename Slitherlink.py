@@ -537,14 +537,11 @@ def fichier_vers_dico(nom_fichier):
     contenu = contenu[1:]
     contenu = contenu[:-1]
     while len(contenu)!= 0:
+        tuples = []
         chaine_a = contenu[0:16]
-        elem_a = int(chaine_a[2])
-        elem_b = int(chaine_a[5])
-        elem_c = int(chaine_a[10])
-        elem_d = int(chaine_a[13])
-        tuple_a = (elem_a, elem_b)
-        tuple_b = (elem_c, elem_d)
-        res = (tuple_a, tuple_b)
+        for i in range(2):
+            tuples.append((int(chaine_a[8 * i + 2]), int(chaine_a[8 * i + 5])))
+        res = (tuples[0], tuples[1])
         cles.append(res)
         contenu = contenu[18:]
         if contenu[0] == "-":
