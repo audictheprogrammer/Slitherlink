@@ -59,9 +59,7 @@ def est_interdit(etat, seg):
 
 
 def est_vierge(etat, seg):
-    i_seg, j_seg = seg
-    seg_inv = j_seg, i_seg
-    if seg in etat or seg_inv in etat:
+    if seg in etat:
         return False
     return True
 
@@ -82,8 +80,11 @@ def effacer_segment(etat, seg):
     Attention, effacer un segment revient à retirer de l’information
     du dictionnaire etat.
     """
+    inv_seg = seg[1], seg[0]
     if not est_vierge(etat, seg):
         etat.pop(seg)
+    elif not est_vierge(etat, inv_seg):
+        etat.pop(inv_seg)
 
 
 def segments_tests(etat, sommet, version):
@@ -168,9 +169,9 @@ def statut_case(indices, etat, case):
             nb_inter += est_interdit(etat, seg)
         if nb_traces == indices[case[0]][case[1]]:
             return 0
-        if nb_traces < indices[case[0]][case[1]]:
+        elif nb_traces < indices[case[0]][case[1]]:
             return 1
-        if nb_traces + nb_inter > indices[case[0]][case[1]]:
+        else:
             return -1
 
 # Tache 2 - CONDITIONS DE VICTOIRE
@@ -190,11 +191,13 @@ def partie_finie(indices, etat):
             lst_segment_depart = choix_segment_depart(indices, 1)
             if lst_segment_depart == []:
                 return False
+    lg = len([cle for cle, val in etat.items() if val == 1])
     for segment_depart in lst_segment_depart:
-        if longueur_boucle(etat, segment_depart) is not None:
-            return True
-    else:
-        return False
+        if est_trace(etat, segment_depart) is True:
+            res = longueur_boucle(etat, segment_depart)
+            if res is not None and res == lg:
+                return True
+    return False
 
 
 def choix_segment_depart(indices, n):
@@ -209,6 +212,9 @@ def choix_segment_depart(indices, n):
                     lst_segment_depart.append(((i, j), (i, j + 1)))
                     lst_segment_depart.append(((i + 1, j), (i + 1, j + 1)))
     return lst_segment_depart
+
+
+
 
 def longueur_boucle(etat, seg):
     i_seg, j_seg = seg
@@ -792,8 +798,8 @@ def solveur(indices, etat, sommet):
 
 
 
-nom_fichier = saisie_nom_fichier(sys.argv)
-applique_solveur(nom_fichier)
+#nom_fichier = saisie_nom_fichier(sys.argv)
+#applique_solveur(nom_fichier)
 
 
 
