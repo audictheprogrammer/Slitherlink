@@ -725,6 +725,18 @@ def Slitherlink():
                 fltk.ferme_fenetre()
                 sauvegarde = True
                 partie = False
+            if jouer == "solution":
+                if choix is not None:
+                    if choix == "grille1.txt" or choix == "grille2.txt" or\
+                 choix == "grille3.txt" or choix =="grille4.txt":
+                     grille = choix
+                else:
+                    grille = nom_fichier
+                applique_solveur(grille)
+                partie = False
+                slitherlink = False
+                fltk.attend_clic_gauche()
+                fltk.ferme_fenetre()               
         elif sauvegarde:
             message, indices, etat = jouer
             sauvegarder(indices, etat)
@@ -799,6 +811,7 @@ def solveur(indices, etat, sommet):
 
 
 #nom_fichier = saisie_nom_fichier(sys.argv)
+#nom_fichier = "grille1.txt"
 #applique_solveur(nom_fichier)
 
 
