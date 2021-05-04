@@ -190,6 +190,7 @@ def partie_finie(indices, etat):
         if lst_segment_depart == []:
             lst_segment_depart = choix_segment_depart(indices, 1)
             if lst_segment_depart == []:
+                # Si aucun segment de départ
                 return False
     lg = len([cle for cle, val in etat.items() if val == 1])
     for segment_depart in lst_segment_depart:
@@ -212,8 +213,6 @@ def choix_segment_depart(indices, n):
                     lst_segment_depart.append(((i, j), (i, j + 1)))
                     lst_segment_depart.append(((i + 1, j), (i + 1, j + 1)))
     return lst_segment_depart
-
-
 
 
 def longueur_boucle(etat, seg):
@@ -732,11 +731,16 @@ def Slitherlink():
                      grille = choix
                 else:
                     grille = nom_fichier
-                applique_solveur(grille)
+
+                # A modifier
+                etat_solution = applique_solveur(grille)
+                dessine_etat(indices, etat_solution, taille_case, taille_marge)
+                # partie_finie(indices, etat_solution)
+
                 partie = False
                 slitherlink = False
                 fltk.attend_clic_gauche()
-                fltk.ferme_fenetre()               
+                fltk.ferme_fenetre()
         elif sauvegarde:
             message, indices, etat = jouer
             sauvegarder(indices, etat)
