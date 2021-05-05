@@ -1,3 +1,4 @@
+
 import fltk
 import sys
 # Slitherlink game by Audic XU the best and Damien BENAMARI the almost best.
@@ -179,7 +180,7 @@ def statut_case(indices, etat, case):
 
 def partie_finie(indices, etat):
     for i in range(len(indices)):
-        for j in range(len(indices)):
+        for j in range(len(indices[0])):
             case = i, j
             res = statut_case(indices, etat, case)
             if res is not None and res != 0 :
@@ -386,8 +387,8 @@ def trace_fenetre(indices, taille_case, taille_marge):
 
 
 def indique_segment(x, y, taille_case, taille_marge, indices):
-    for i in range(len(indices)):
-        for j in range(len(indices[0])):
+    for j in range(len(indices)):
+        for i in range(len(indices[0])):
             sommets_x = []
             sommets_y = []
             for k in range(2):
@@ -404,14 +405,14 @@ def indique_segment(x, y, taille_case, taille_marge, indices):
                return ((j, i), (j + 1, i))
 
             # Pour les cas qui n'ont pas été pris en compte
-            if i == len(indices) - 1:
+            if i == len(indices[0]) - 1:
                 if sommets_x[1] - dx <= x <= sommets_x[1] + dx and\
                    sommets_y[0] <= y <= sommets_y[1]:
                    return ((j, i + 1), (j + 1, i + 1))
-            if j == len(indices[0]) - 1:
+            if j == len(indices) - 1:
                 if sommets_x[0] <= x <= sommets_x[1] and\
                    sommets_y[1] - dy <= y <= sommets_y[1] + dy:
-                    return ((j + 1, i), (j + 1, i + 1))
+                   return ((j + 1, i), (j + 1, i + 1))
     return None
 
 
@@ -438,8 +439,8 @@ def dessine_indices(indices, etat, taille_case, taille_marge):
 def dessine_etat(indices, etat, taille_case, taille_marge):
     """Retrace tous les segments en fonction de la variable etat"""
     fltk.efface("etat")
-    for i in range(len(indices) + 1):
-        for j in range(len(indices[0]) + 1):
+    for j in range(len(indices) + 1):
+        for i in range(len(indices[0]) + 1):
             sommets = [(j, i), (j, i + 1), (j + 1, i)]
             segments = [(sommets[0], sommets[1]), (sommets[0], sommets[2])]
             x_sommets = []
@@ -814,9 +815,9 @@ def solveur(indices, etat, sommet):
 
 
 
-#nom_fichier = saisie_nom_fichier(sys.argv)
-#nom_fichier = "grille1.txt"
-#applique_solveur(nom_fichier)
+# nom_fichier = saisie_nom_fichier(sys.argv)
+# nom_fichier = "grille1.txt"
+# applique_solveur(nom_fichier)
 
 
 
