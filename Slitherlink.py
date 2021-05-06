@@ -633,6 +633,7 @@ def Slitherlink():
     slitherlink = True
     menu = True
     choix_grille = False
+    choix = None
     charger_grille = False
     partie = False
     sauvegarde = False
@@ -778,6 +779,23 @@ def applique_solveur(grille):
 
 def solveur(indices, etat, sommet):
     i, j = sommet
+    voisins = fonction_voisins(sommet)
+    if partie_finie(indices, etat) is True:
+        return etat
+    elif i > len(indices) or j > len(indices[0]) or i < 0 or j < 0:
+        return None
+    else:
+        for voisin in voisins:
+            if est_trace(etat, ((i, j), voisin)) is False:
+                tracer_segment(etat, ((i, j), voisin))
+                res = solveur(indices, etat, voisin)
+                if res is not None:
+                    return res
+                effacer_segment(etat, ((i, j), voisin))
+    return None
+
+"""def solveur(indices, etat, sommet):
+    i, j = sommet
     if partie_finie(indices, etat) is True:
         return etat
     elif i > len(indices) or j > len(indices[0]) or i < 0 or j < 0:
@@ -810,9 +828,7 @@ def solveur(indices, etat, sommet):
             if res is not None:
                 return res
             effacer_segment(etat, ((i, j), (i, j - 1)))
-    return None
-
-
+    return None"""
 
 
 # nom_fichier = saisie_nom_fichier(sys.argv)
