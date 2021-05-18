@@ -736,7 +736,8 @@ def Slitherlink():
 
                 # A modifier
                 etat_solution = applique_solveur(grille)
-                dessine_etat(indices, etat_solution, taille_case, taille_marge)
+                if etat_solution is not False:
+                    dessine_etat(indices, etat_solution, taille_case, taille_marge)
                 # partie_finie(indices, etat_solution)
 
                 partie = False
@@ -766,33 +767,49 @@ def applique_solveur(grille):
 
     for segment_depart in lst_segment_depart:
         sommet_depart, sommet_courant = segment_depart
-        tracer_segment(etat_temporaire, segment_depart)
-        res = solveur(indices, etat_temporaire, sommet_courant)
+        # tracer_segment(etat_temporaire, segment_depart)
+        res = solveur(indices, etat_temporaire, sommet_depart)
         if res is not None:
             print(f"Solution trouvé: \n{res}")
             return res
-        effacer_segment(etat_temporaire, segment_depart)
+        #effacer_segment(etat_temporaire, segment_depart)
 
     print("Pas de solution")
     return None
 
 
 def solveur(indices, etat, sommet):
-    i, j = sommet
     voisins = fonction_voisins(sommet)
-    if partie_finie(indices, etat) is True:
+    nb_voisins = 0
+    for voisin in voisins:
+        if est_trace(etat, (voisin, sommet)) == True:
+            nb_voisins += 1
+    if nb_voisins == 2:
+        # verifie les indices
+        for i in range(len(indices)):
+            for j in range(len(indices[0])):
+                case = i, j
+                res_statut_case = statut_case(indices, etat, case)
+                if res_statut_case != 0 and res_statut_case is not None:
+                    return False
         return etat
-    elif i > len(indices) or j > len(indices[0]) or i < 0 or j < 0:
-        return None
-    else:
+    elif nb_voisins > 2:
+        # on a cree un branchement
+        return False
+    elif nb_voisins < 2:
         for voisin in voisins:
-            if est_trace(etat, ((i, j), voisin)) is False:
-                tracer_segment(etat, ((i, j), voisin))
-                res = solveur(indices, etat, voisin)
-                if res is not None:
-                    return res
-                effacer_segment(etat, ((i, j), voisin))
-    return None
+            if 0 <= voisin[0] <= len(indices) and\
+               0 <= voisin[1] <= len(indices[0]) and\
+               est_vierge(etat, (voisin, sommet)) is True:
+                tracer_segment(etat, (sommet, voisin))
+                res_appel = solveur(indices, etat, voisin)
+                if res_appel is not False:
+                    return res_appel
+                else:
+                    effacer_segment(etat, (sommet, voisin))
+        return False
+
+
 
 """def solveur(indices, etat, sommet):
     i, j = sommet
