@@ -492,7 +492,7 @@ def saisie_nom_fichier_graphique():
             # Str.isdigit() True: All characters are digits
             # Str.lower(): returns a string where all characters are lower case
             if touche.isdigit() or touche.lower() in touches:
-                lst_nom.append(touche)
+                lst_nom.append(touche)                    
             if touche == "underscore":
                 lst_nom.append("_")
             if touche == "Return":
@@ -736,7 +736,7 @@ def Slitherlink():
 
                 # A modifier
                 etat_solution = applique_solveur(grille)
-                if etat_solution is not False:
+                if etat_solution is not None:
                     dessine_etat(indices, etat_solution, taille_case, taille_marge)
                 # partie_finie(indices, etat_solution)
 
@@ -769,7 +769,7 @@ def applique_solveur(grille):
         sommet_depart, sommet_courant = segment_depart
         # tracer_segment(etat_temporaire, segment_depart)
         res = solveur(indices, etat_temporaire, sommet_depart)
-        if res is not None:
+        if res is not False:
             print(f"Solution trouvé: \n{res}")
             return res
         #effacer_segment(etat_temporaire, segment_depart)
@@ -781,6 +781,7 @@ def applique_solveur(grille):
 def solveur(indices, etat, sommet):
     voisins = fonction_voisins(sommet)
     nb_voisins = 0
+    lst_seg = []
     for voisin in voisins:
         if est_trace(etat, (voisin, sommet)) == True:
             nb_voisins += 1
@@ -798,55 +799,16 @@ def solveur(indices, etat, sommet):
         return False
     elif nb_voisins < 2:
         for voisin in voisins:
-            if 0 <= voisin[0] <= len(indices) and\
-               0 <= voisin[1] <= len(indices[0]) and\
-               est_vierge(etat, (voisin, sommet)) is True:
-                tracer_segment(etat, (sommet, voisin))
-                res_appel = solveur(indices, etat, voisin)
-                if res_appel is not False:
-                    return res_appel
-                else:
-                    effacer_segment(etat, (sommet, voisin))
+            if est_vierge(etat, (voisin, sommet)) is True:
+                if 0 <= voisin[0] <= len(indices) and\
+                0 <= voisin[1] <= len(indices[0]):
+                    tracer_segment(etat, (sommet, voisin))
+                    res_appel = solveur(indices, etat, voisin)
+                    if res_appel is not False:
+                        return res_appel
+                    else:
+                        effacer_segment(etat, (sommet, voisin))
         return False
-
-
-
-"""def solveur(indices, etat, sommet):
-    i, j = sommet
-    if partie_finie(indices, etat) is True:
-        return etat
-    elif i > len(indices) or j > len(indices[0]) or i < 0 or j < 0:
-        return None
-    else:
-        if est_trace(etat, ((i, j), (i + 1, j))) is False:
-            tracer_segment(etat, ((i, j), (i + 1, j)))
-            res = solveur(indices, etat, (i + 1, j))
-            if res is not None:
-                return res
-            effacer_segment(etat, ((i, j), (i + 1, j)))
-
-        if est_trace(etat, ((i, j) ,(i - 1, j))) is False:
-            tracer_segment(etat, ((i, j), (i - 1, j)))
-            res = solveur(indices, etat, (i - 1, j))
-            if res is not None:
-                return res
-            effacer_segment(etat, ((i, j),(i - 1, j)))
-
-        if est_trace(etat, ((i, j) ,(i, j + 1))) is False:
-            tracer_segment(etat, ((i, j), (i, j + 1)))
-            res = solveur(indices, etat, (i, j + 1))
-            if res is not None:
-                return res
-            effacer_segment(etat, ((i, j), (i, j + 1)))
-
-        if est_trace(etat, ((i, j) ,(i, j - 1))) is False:
-            tracer_segment(etat, ((i, j), (i, j - 1)))
-            res = solveur(indices, etat, (i, j - 1))
-            if res is not None:
-                return res
-            effacer_segment(etat, ((i, j), (i, j - 1)))
-    return None"""
-
 
 # nom_fichier = saisie_nom_fichier(sys.argv)
 # nom_fichier = "grille1.txt"
