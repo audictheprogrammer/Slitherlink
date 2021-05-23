@@ -40,8 +40,7 @@ def verif_grille(nom_fichier):
 
 
 def est_trace(etat, seg):
-    i_seg, j_seg = seg
-    seg_inv = j_seg, i_seg
+    seg_inv = seg[1], seg[0]
     if seg in etat and etat[seg] == 1:
         return True
     if seg_inv in etat and etat[seg_inv] == 1:
@@ -50,8 +49,7 @@ def est_trace(etat, seg):
 
 
 def est_interdit(etat, seg):
-    i_seg, j_seg = seg
-    seg_inv = j_seg, i_seg
+    seg_inv = seg[1], seg[0]
     if seg in etat and etat[seg] == -1:
         return True
     if seg_inv in etat and etat[seg_inv] == -1:
@@ -60,7 +58,8 @@ def est_interdit(etat, seg):
 
 
 def est_vierge(etat, seg):
-    if seg in etat:
+    seg_inv = seg[1], seg[0]
+    if seg in etat or seg_inv in etat:
         return False
     return True
 
@@ -82,9 +81,9 @@ def effacer_segment(etat, seg):
     du dictionnaire etat.
     """
     inv_seg = seg[1], seg[0]
-    if not est_vierge(etat, seg):
+    if seg in etat:
         etat.pop(seg)
-    elif not est_vierge(etat, inv_seg):
+    elif inv_seg in etat:
         etat.pop(inv_seg)
 
 
@@ -170,10 +169,12 @@ def statut_case(indices, etat, case):
             nb_inter += est_interdit(etat, seg)
         if nb_traces == indices[case[0]][case[1]]:
             return 0
-        elif nb_traces < indices[case[0]][case[1]]:
-            return 1
-        else:
+        elif 4 - nb_inter < indices[case[0]][case[1]]:
             return -1
+        elif nb_traces > indices[case[0]][case[1]]:
+            return -1
+        else:
+            return 1
 
 # Tache 2 - CONDITIONS DE VICTOIRE
 
@@ -492,7 +493,7 @@ def saisie_nom_fichier_graphique():
             # Str.isdigit() True: All characters are digits
             # Str.lower(): returns a string where all characters are lower case
             if touche.isdigit() or touche.lower() in touches:
-                lst_nom.append(touche)                    
+                lst_nom.append(touche)
             if touche == "underscore":
                 lst_nom.append("_")
             if touche == "Return":
@@ -756,7 +757,28 @@ def Slitherlink():
 
 # Tache 4 - RECHERCHE DE SOLUTIONS
 
+
+def verif_case_autour_sommet(indices, etat, sommet):
+    sommet2 = sommet[0] - 1 ,sommet[1] - 1
+    cases = fonction_voisins((sommet[0] - 1, sommet[1] - 1))
+    for case in cases:
+        if 0 <= case[0] < len(indices) and 0 <= case[1] < len(indices[0]):
+            res = statut_case(indices, etat, case)
+            if res is not None and res < 0:
+                return False
+    return True
+
+
+
 def applique_solveur(grille):
+    """Détermine le sommet de départ et applique le solveur depuis ce sommet.
+    Paramètres:
+        grille -> Str: "grille3.txt"
+    Return
+        res -> Dict: etat
+        res -> None: Pas de solution
+
+    """
     etat_temporaire = {}
     indices = fichier_vers_liste(grille)
     lst_segment_depart = choix_segment_depart(indices, 3)
@@ -778,7 +800,7 @@ def applique_solveur(grille):
     return None
 
 
-def solveur(indices, etat, sommet):
+def solveur(indices, etat, sommet, i=0):
     voisins = fonction_voisins(sommet)
     nb_voisins = 0
     lst_seg = []
@@ -799,16 +821,40 @@ def solveur(indices, etat, sommet):
         return False
     elif nb_voisins < 2:
         for voisin in voisins:
-            if est_vierge(etat, (voisin, sommet)) is True:
-                if 0 <= voisin[0] <= len(indices) and\
+            if 0 <= voisin[0] <= len(indices) and\
                 0 <= voisin[1] <= len(indices[0]):
+                if est_vierge(etat, (voisin, sommet)) is True:
                     tracer_segment(etat, (sommet, voisin))
-                    res_appel = solveur(indices, etat, voisin)
-                    if res_appel is not False:
-                        return res_appel
-                    else:
-                        effacer_segment(etat, (sommet, voisin))
+                    if i % 20 == 0 :
+                        dessine_etat(indices, etat, 75, 40)
+                        fltk.mise_a_jour()
+
+                    if len(etat) != 1:
+                        # Interdit les segments pouvant causer un branchement
+                        for voisin2 in voisins:
+                            if est_vierge(etat, (sommet, voisin2)) is True:
+                                if 0 <= voisin2[0] <= len(indices) and\
+                                0 <= voisin2[1] <= len(indices[0]):
+                                    interdire_segment(etat, (sommet, voisin2))
+
+                    cond1 = verif_case_autour_sommet(indices, etat, sommet)
+
+                    if cond1 is True:
+                        res_appel = solveur(indices, etat, voisin, i+1)
+                        if res_appel is not False:
+                            return res_appel
+
+                    # Efface les interdictions
+                    for voisin2 in voisins:
+                        if est_interdit(etat, (sommet, voisin2)):
+                            effacer_segment(etat, (sommet, voisin2))
+                    effacer_segment(etat, (sommet, voisin))
         return False
+
+
+
+
+
 
 # nom_fichier = saisie_nom_fichier(sys.argv)
 # nom_fichier = "grille1.txt"
