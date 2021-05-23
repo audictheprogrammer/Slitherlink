@@ -616,10 +616,10 @@ def Slitherlink():
     lst_choix = [
     {"xpos": 0, "ypos": 0, "nom": "ressources/fond_d'ecran.gif", "dim": (800, 600), "message": "inutile"},
     {"xpos": 300, "ypos": 490, "nom": "ressources/bouton_menu.gif", "dim": (200, 100), "message": "menu"},
-    {"xpos": 40, "ypos": 215, "nom": "ressources/bouton_grille1.gif", "dim": (150, 150), "message": "grille1.txt"},
-    {"xpos": 230, "ypos": 215, "nom": "ressources/bouton_grille2.gif", "dim": (150, 150), "message": "grille2.txt"},
-    {"xpos": 420, "ypos": 215, "nom": "ressources/bouton_grille3.gif", "dim": (150, 150), "message": "grille3.txt"},
-    {"xpos": 610, "ypos": 215, "nom": "ressources/bouton_grille4.gif", "dim": (150, 150), "message": "grille4.txt"}
+    {"xpos": 40, "ypos": 215, "nom": "ressources/bouton_grille1_bisbis.gif", "dim": (150, 150), "message": "grille1.txt"},
+    {"xpos": 230, "ypos": 215, "nom": "ressources/bouton_grille2_bisbis.gif", "dim": (150, 150), "message": "grille2.txt"},
+    {"xpos": 420, "ypos": 215, "nom": "ressources/bouton_grille3_bisbis.gif", "dim": (150, 150), "message": "grille3.txt"},
+    {"xpos": 610, "ypos": 215, "nom": "ressources/bouton_grille4_bisbis.gif", "dim": (150, 150), "message": "grille4.txt"}
         ]
     lst_charger = [
     {"xpos": 0, "ypos": 0, "nom": "ressources/fond_d'ecran.gif", "dim": (800, 600), "message": "inutile"},
