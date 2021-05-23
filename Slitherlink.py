@@ -825,9 +825,9 @@ def solveur(indices, etat, sommet, i=0):
                 0 <= voisin[1] <= len(indices[0]):
                 if est_vierge(etat, (voisin, sommet)) is True:
                     tracer_segment(etat, (sommet, voisin))
-                    if i % 20 == 0 :
+                    """if i % 20 == 0 :
                         dessine_etat(indices, etat, 75, 40)
-                        fltk.mise_a_jour()
+                        fltk.mise_a_jour()"""
 
                     if len(etat) != 1:
                         # Interdit les segments pouvant causer un branchement
