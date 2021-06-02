@@ -520,7 +520,7 @@ def fichier_vers_liste(nom_fichier):
         indices -> List[List]
                 : [[None, None, None, None, 0, None], ...]
     """
-    carac_autorise = ["1", "2", "3", "4", "_", "\n"]
+    carac_autorise = ["0", "1", "2", "3", "4", "_", "\n"]
     f = open(nom_fichier, "r")
     contenu = f.read()
     indices = []
@@ -536,7 +536,6 @@ def fichier_vers_liste(nom_fichier):
         else:
             liste_temporaire.append(int(carac))
     return indices
-
 
 def fichier_vers_dico(nom_fichier):
     f = open(nom_fichier, "r")
@@ -682,9 +681,9 @@ def Slitherlink():
                     etat = {}
                     fltk.ferme_fenetre()
                 if indices is False:
-                    fltk.texte(310, 120, "Grille invalide", 
+                    fltk.texte(190, 100, "Grille invalide", 
                            couleur = "#FF0000", police = "sketchy in snow",
-                           taille = "30", tag = "erreur")
+                           taille = "70", tag = "erreur")
                     fltk.attend_clic_gauche()
         elif charger_grille:
             affiche_images(lst_charger)
@@ -708,22 +707,32 @@ def Slitherlink():
                     fenetre = False
                     fltk.ferme_fenetre()
                 if indices is False:
-                    fltk.texte(310, 20, "Grille invalide", 
+                    fltk.texte(190, 150, "Grille invalide", 
                            couleur = "#FF0000", police = "sketchy in snow",
-                           taille = "30", tag = "erreur")
+                           taille = "70", tag = "erreur")
                     fltk.attend_clic_gauche()
         elif partie:
             lg = len(indices[0]) * taille_case + 2 * taille_marge
             lst_jeu = [{"xpos": lg + 25, "ypos": 40, "nom": "ressources/bouton_sauvegarder.gif", "dim": (200, 100), "message": ("sauvegarder", indices, etat)},
                        {"xpos": lg + 25, "ypos": 160, "nom": "ressources/bouton_solution.gif", "dim": (200, 100), "message": "solution"},
-                       {"xpos": lg + 25, "ypos": 280, "nom": "ressources/bouton_grille.gif", "dim": (200, 100), "message": "choix_grille"},
+                       {"xpos": lg + 25, "ypos": 280, "nom": "ressources/bouton_solution_graphique.gif", "dim": (200, 100), "message": "solution_graphique"},
                        {"xpos": lg + 15, "ypos": 400, "nom": "ressources/bouton_maison.gif", "dim": (100, 100), "message": "menu"},
                        {"xpos": lg + 135, "ypos": 400, "nom": "ressources/bouton_eteindre.gif", "dim": (100, 100), "message": "quitter"}]
             initialisation_fenetre(indices, etat, taille_case, taille_marge)
             jouer = fonction_jeu(indices, etat, taille_case, taille_marge, lst_jeu, lst_condition, lg)
-            if jouer == "choix_grille":
-                choix_grille = True
-                partie = False
+            if jouer == "solution_graphique":
+                if choix is not None:
+                    if choix == "grille1.txt" or choix == "grille2.txt" or\
+                            choix == "grille3.txt" or choix =="grille4.txt":
+                        grille = choix
+                else:
+                    grille = nom_fichier
+
+
+                etat_solution = applique_solveur(grille, True)
+                if etat_solution is not None:
+                    dessine_etat(indices, etat_solution, taille_case, taille_marge)
+                fltk.attend_clic_gauche()
                 fltk.ferme_fenetre()
             if jouer == "quitter":
                 fltk.ferme_fenetre()
@@ -744,19 +753,15 @@ def Slitherlink():
             if jouer == "solution":
                 if choix is not None:
                     if choix == "grille1.txt" or choix == "grille2.txt" or\
-                 choix == "grille3.txt" or choix =="grille4.txt":
-                     grille = choix
+                            choix == "grille3.txt" or choix =="grille4.txt":
+                        grille = choix
                 else:
                     grille = nom_fichier
 
-                # A modifier
-                etat_solution = applique_solveur(grille)
+
+                etat_solution = applique_solveur(grille, False)
                 if etat_solution is not None:
                     dessine_etat(indices, etat_solution, taille_case, taille_marge)
-                # partie_finie(indices, etat_solution)
-
-                #partie = False
-                #slitherlink = False
                 fltk.attend_clic_gauche()
                 fltk.ferme_fenetre()
         elif sauvegarde:
@@ -784,7 +789,7 @@ def verif_case_autour_sommet(indices, etat, sommet):
 
 
 
-def applique_solveur(grille):
+def applique_solveur(grille, graphique):
     """Détermine le sommet de départ et applique le solveur depuis ce sommet.
     Paramètres:
         grille -> Str: "grille3.txt"
@@ -804,7 +809,7 @@ def applique_solveur(grille):
     for segment_depart in lst_segment_depart:
         sommet_depart, sommet_courant = segment_depart
         # tracer_segment(etat_temporaire, segment_depart)
-        res = solveur(indices, etat_temporaire, sommet_depart)
+        res = solveur(indices, etat_temporaire, sommet_depart, graphique)
         if res is not False:
             print(f"Solution trouvé: \n{res}")
             return res
@@ -814,7 +819,7 @@ def applique_solveur(grille):
     return None
 
 
-def solveur(indices, etat, sommet, i=0):
+def solveur(indices, etat, sommet, graphique, i = 0):
     voisins = fonction_voisins(sommet)
     nb_voisins = 0
     lst_seg = []
@@ -839,7 +844,7 @@ def solveur(indices, etat, sommet, i=0):
                 0 <= voisin[1] <= len(indices[0]):
                 if est_vierge(etat, (voisin, sommet)) is True:
                     tracer_segment(etat, (sommet, voisin))
-                    if i % 20 == 0 :
+                    if graphique is True:
                         dessine_etat(indices, etat, 75, 40)
                         fltk.mise_a_jour()
 
@@ -854,7 +859,7 @@ def solveur(indices, etat, sommet, i=0):
                     cond1 = verif_case_autour_sommet(indices, etat, sommet)
 
                     if cond1 is True:
-                        res_appel = solveur(indices, etat, voisin, i+1)
+                        res_appel = solveur(indices, etat, voisin, graphique, i + 1)
                         if res_appel is not False:
                             return res_appel
 
