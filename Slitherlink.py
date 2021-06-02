@@ -520,6 +520,7 @@ def fichier_vers_liste(nom_fichier):
         indices -> List[List]
                 : [[None, None, None, None, 0, None], ...]
     """
+    carac_autorise = ["1", "2", "3", "4", "_", "\n"]
     f = open(nom_fichier, "r")
     contenu = f.read()
     indices = []
@@ -530,6 +531,8 @@ def fichier_vers_liste(nom_fichier):
             liste_temporaire = []
         elif carac == "_":
             liste_temporaire.append(None)
+        elif carac not in carac_autorise:
+            return False
         else:
             liste_temporaire.append(int(carac))
     return indices
@@ -671,12 +674,18 @@ def Slitherlink():
                 menu = True
             elif choix == "grille1.txt" or choix == "grille2.txt" or\
                  choix == "grille3.txt" or choix =="grille4.txt":
-                choix_grille = False
-                partie = True
-                fenetre = False
                 indices = fichier_vers_liste(choix)
-                etat = {}
-                fltk.ferme_fenetre()
+                if indices is not False:
+                    choix_grille = False
+                    partie = True
+                    fenetre = False
+                    etat = {}
+                    fltk.ferme_fenetre()
+                if indices is False:
+                    fltk.texte(310, 120, "Grille invalide", 
+                           couleur = "#FF0000", police = "sketchy in snow",
+                           taille = "30", tag = "erreur")
+                    fltk.attend_clic_gauche()
         elif charger_grille:
             affiche_images(lst_charger)
             fltk.texte(75, 70, "Saisissez le nom du fichier :", couleur = "#4CFF00",
@@ -690,13 +699,19 @@ def Slitherlink():
                 charger_grille = False
                 menu = True
             else:
-                charger_grille = False
-                partie = True
-                fenetre = False
                 nom_fichier, etat_fichier = charger
                 indices = fichier_vers_liste(nom_fichier)
                 etat = fichier_vers_dico(etat_fichier)
-                fltk.ferme_fenetre()
+                if indices is not False:
+                    charger_grille = False
+                    partie = True
+                    fenetre = False
+                    fltk.ferme_fenetre()
+                if indices is False:
+                    fltk.texte(310, 20, "Grille invalide", 
+                           couleur = "#FF0000", police = "sketchy in snow",
+                           taille = "30", tag = "erreur")
+                    fltk.attend_clic_gauche()
         elif partie:
             lg = len(indices[0]) * taille_case + 2 * taille_marge
             lst_jeu = [{"xpos": lg + 25, "ypos": 40, "nom": "ressources/bouton_sauvegarder.gif", "dim": (200, 100), "message": ("sauvegarder", indices, etat)},
