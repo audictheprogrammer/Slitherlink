@@ -567,12 +567,12 @@ def fichier_vers_dico(nom_fichier):
 
 
 def sauvegarder(indices, etat):
-    fltk.efface_tout()
-    fltk.mise_a_jour()
     fltk.image(0, 0, "ressources/fond_d'ecran.gif",
                ancrage = "nw", tag = "fond")
-    fltk.image(300, 490, "ressources/bouton_valider.gif",
-               ancrage = "nw", tag = "menu")
+    fltk.image(500, 490, "ressources/bouton_valider.gif",
+               ancrage = "nw", tag = "valider")
+    fltk.image(100, 490, "ressources/bouton_retour.gif",
+               ancrage = "nw", tag = "retour")
     fltk.rectangle(100, 270, 700, 330, couleur = "black",
                    remplissage = "white", tag = "barre_blanche")
     fltk.texte(75, 70, "Saisissez le nom du fichier :", couleur = "#4CFF00",
@@ -584,8 +584,10 @@ def sauvegarder(indices, etat):
         if clic_bouton(ev, 100, 270, (600, 60)) == True:
             fltk.efface("nom")
             nom_fichier = saisie_nom_fichier_graphique()
-        if clic_bouton(ev, 300, 490, (200, 100)) == True:
+        if clic_bouton(ev, 500, 490, (200, 100)) == True:
             sauvegarde = False
+        if clic_bouton(ev, 100, 490, (200, 100)) == True:
+            return True
         fltk.mise_a_jour()
     f_etat = open("etat_" + nom_fichier, "w")
     chaine_a = str(etat)
@@ -603,7 +605,7 @@ def sauvegarder(indices, etat):
         chaine_b += "\n"
     contenu_b = f_indices.write(chaine_b)
     f_indices.close()
-    return None
+    return False
 
 # Boucle principale
 def Slitherlink():
@@ -641,6 +643,7 @@ def Slitherlink():
     partie = False
     sauvegarde = False
     while slitherlink:
+        print(fenetre)
         if fenetre == False and partie == False:
             fltk.cree_fenetre(800, 600)
             fenetre = True
@@ -732,6 +735,10 @@ def Slitherlink():
                 etat_solution = applique_solveur(grille, True)
                 if etat_solution is not None:
                     dessine_etat(indices, etat_solution, taille_case, taille_marge)
+                    t_pol = len(indices)*25
+                    fltk.texte((lg + 250)//2, 265, "Bouuuh !!!", ancrage = "center",
+                               couleur = "#FF0000", police = "sketchy in snow",
+                               taille = str(t_pol))
                 fltk.attend_clic_gauche()
                 fltk.ferme_fenetre()
             if jouer == "quitter":
@@ -762,13 +769,20 @@ def Slitherlink():
                 etat_solution = applique_solveur(grille, False)
                 if etat_solution is not None:
                     dessine_etat(indices, etat_solution, taille_case, taille_marge)
+                    t_pol = len(indices)*25
+                    fltk.texte((lg + 250)//2, 265, "Bouuuh !!!", ancrage = "center",
+                               couleur = "#FF0000", police = "sketchy in snow",
+                               taille = str(t_pol))
                 fltk.attend_clic_gauche()
                 fltk.ferme_fenetre()
         elif sauvegarde:
             message, indices, etat = jouer
-            sauvegarder(indices, etat)
+            partie = sauvegarder(indices, etat)
             sauvegarde = False
-            slitherlink = False
+            if partie is False:
+                slitherlink = False
+            else:
+                fenetre = False
             fltk.ferme_fenetre()
 
     print("Fin du jeu")
