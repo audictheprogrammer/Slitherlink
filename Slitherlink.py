@@ -53,6 +53,37 @@ def effacer_segment(etat, seg):
         etat.pop(inv_seg)
 
 
+def segments_tests(etat, sommet, version):
+    """Renvoie la liste des segments interdits adjacents à sommet dans etat
+    Paramètres:
+        etat -> Dict
+        sommet -> Tuple
+    Return:
+        lst -> List[Tuple(Tuple, Tuple)]
+    """
+    voisins = fonction_voisins(sommet)
+    lst_traces = []
+    lst_interdits = []
+    lst_vierges = []
+    for cle in etat:
+        i_cle, j_cle = cle
+        for elem in voisins:
+            if ((sommet == i_cle and elem == j_cle) or
+               (elem == i_cle and sommet == j_cle)):
+                if etat[cle] == 1:
+                    lst_traces.append(cle)
+                elif etat[cle] == -1:
+                    lst_interdits.append(cle)
+                else:
+                    lst_vierges.append(cle)
+    if version == "traces":
+        return lst_traces
+    if version == "interdits":
+        return lst_interdits
+    if version == "vierges":
+        return lst_vierges
+
+
 def fonction_voisins(sommet):
     i_sommet, j_sommet = sommet
     voisins = [(i_sommet + 1, j_sommet), (i_sommet - 1, j_sommet),
@@ -60,19 +91,15 @@ def fonction_voisins(sommet):
     return voisins
 
 
-def segments_tests(etat, sommet, fonction):
-    """Renvoie la liste des segments tracés/interdits/vierges adjacents par
-     rapport à sommet dans etat.
+def segments_testsV2(etat, sommet, fonction):
+    """Renvoie la liste des segments tracés/interdits/vierges adjacents
+     à sommet dans etat.
     Paramètres:
         etat    -> Dict: {((0, 1), (1, 1)): -1, ...}
         sommet  -> Tuple: (2, 1)
     Return:
         lst -> List[Tuple(Tuple, Tuple)]
             : [((1, 1), (2, 1)), ((1, 1), (1, 2))]
-    Exemple:
-        >>> etat = {((0, 1), (0, 2)): 1, ((0, 0), (0, 1)): 1}
-        >>> segments_tests(etat, (0, 1), est_trace)
-        [((0, 1), (0, 2)), ((0, 1), (0, 0))]
     """
     voisins = fonction_voisins(sommet)
     lst = []
@@ -84,7 +111,8 @@ def segments_tests(etat, sommet, fonction):
 
 
 def statut_case(indices, etat, case):
-    """Renvoie le statut de la case: None, 0, 1 ou -1.
+    """
+    Renvoie le statut de la case: None, 0, 1 ou -1.
     Paramètres:
         indices -> List[List]
                 : [[None, None, None, None, 0, None], ...]
@@ -92,15 +120,6 @@ def statut_case(indices, etat, case):
         case: Tuple
     Return:
         Int or None
-    Exemple:
-        >>> indices, etat, case = [[2, 2], [2, 2]], {}, (1, 1)
-        >>> statut_case(indices, etat, case)
-        1
-
-        >>> etat = {((1, 2), (2, 2)): 1, ((1, 1), (1, 2)): 1}
-        >>> indices, case = [[2, 2], [2, 2]], (1, 1)
-        >>> statut_case(indices, etat, case)
-        0
     """
     if indices[case[0]][case[1]] is None:
         return None
@@ -127,25 +146,12 @@ def statut_case(indices, etat, case):
 # Tache 2 - CONDITIONS DE VICTOIRE
 
 def partie_finie(indices, etat):
-    """Détecte la fin de la partie: lorsque la grille est résolue. Se décompose
-    de deux conditions:
-    - Chaque indice est satisfait
-    - L'ensemble des segments tracés forme une unique boucle fermée.
-    Paramètres:
-        indices -> List[List]
-                : [[None, None, None, None, 0, None], ...]
-        etat: Dict
-    Return:
-        Bool: True or False
-    """
-    # Première condition
     for i in range(len(indices)):
         for j in range(len(indices[0])):
             case = i, j
             res = statut_case(indices, etat, case)
             if res is not None and res != 0:
                 return False
-    # Deuxième condition
     lst_segment_depart = choix_segment_depart(indices, 3)
     if lst_segment_depart == []:
         lst_segment_depart = choix_segment_depart(indices, 2)
@@ -164,13 +170,6 @@ def partie_finie(indices, etat):
 
 
 def choix_segment_depart(indices, n):
-    """Sous fonction partie_finie. Choisit un sommmet pour être le sommet
-     de départ ou les sommets de départ.
-    Paramètres:
-        indices -> List[List]
-                : [[None, None, None, None, 0, None], ...]
-        n -> Int
-    """
     lst_segment_depart = []
     for i in range(len(indices)):
         for j in range(len(indices[0])):
@@ -185,18 +184,9 @@ def choix_segment_depart(indices, n):
 
 
 def longueur_boucle(etat, seg):
-    """Sous fonction de partie_finie. Vérifie que la boucle soit bien fermée.
-    Paramètres:
-        etat -> Dict
-             : {((0, 1), (0, 2)): 1, ...}
-        seg -> Tuple(Tuple)
-            : ((0, 0), (0, 1))
-    Return:
-        nb_seg: Int or None
-    """
-    sommet1, sommet2 = seg
-    depart = sommet1
-    precedent, courant = sommet1, sommet2
+    i_seg, j_seg = seg
+    depart = i_seg
+    precedent, courant = i_seg, j_seg
     nb_seg = 1
     while courant != depart:
         voisins = fonction_voisins(courant)
@@ -218,21 +208,12 @@ def longueur_boucle(etat, seg):
 # Tache 3 - INTERFACE GRAPHIQUE
 
 def affiche_images(lst):
-    """Affiche toutes les images en utilisant une liste prédéfinie."""
     for dico in lst:
         fltk.image(dico["xpos"], dico["ypos"], dico["nom"], ancrage="nw")
     fltk.mise_a_jour()
 
 
 def menus(page, lst):
-    """
-    Paramètres:
-        page -> Bool
-        lst -> List[Dict]
-            : [{'xpos': 0, 'ypos': 0, 'nom': "ressources/fond_d'ecran_menu.gif",...]
-    Return:
-        instruction -> Str
-    """
     if page == "charger_grille":
         nom_fichier = None
     boucle = True
@@ -255,15 +236,6 @@ def menus(page, lst):
 
 
 def clic_bouton(ev, absc, ordo, dimension):
-    """Indique si la zone a été cliqué.
-    Paramètres:
-        ev -> fltk.event
-        absc, ordo -> Tuple(Int)
-                   : correspond au point en haut à gauche
-        dimension -> tuple
-    Return:
-        Bool -> True or False
-    """
     lg, ht = dimension
     tev = fltk.type_ev(ev)
     if tev == "ClicGauche":
@@ -315,8 +287,6 @@ def event(ev, lst):
 
 
 def partie(ev, etat, lst, lst_jeu, taille_case, taille_marge, indices):
-    """Utilisé par fonction_jeu et fait partie des intructions pour 'elif partie'.
-    """
     tev = fltk.type_ev(ev)
     for elem in lst:
         if tev == elem:
@@ -390,18 +360,6 @@ def trace_fenetre(indices, taille_case, taille_marge):
 
 
 def indique_segment(x, y, taille_case, taille_marge, indices):
-    """Indique quel segment vient d'être cliqué.
-    Paramètres:
-        x -> Int
-        y -> Int
-        taille_case -> Int
-        taille_marge -> Int
-        indices -> List[List]
-                : [[None, None, None, None, 0, None], ...]
-    Return:
-        segment -> Tuple(Tuple)
-                : ((1, 0), (1, 1))
-    """
     for j in range(len(indices)):
         for i in range(len(indices[0])):
             sommets_x = []
@@ -432,7 +390,7 @@ def indique_segment(x, y, taille_case, taille_marge, indices):
 
 
 def dessine_indices(indices, etat, taille_case, taille_marge):
-    """Efface puis retrace tous les indices c'est-à-dire les chiffres sur les cases"""
+    """Retrace tous les segments en fonction de la variable indices"""
     fltk.efface("indices")
     for i in range(len(indices[0])):
         for j in range(len(indices)):
@@ -452,7 +410,7 @@ def dessine_indices(indices, etat, taille_case, taille_marge):
 
 
 def dessine_etat(indices, etat, taille_case, taille_marge):
-    """Efface puis retrace tous les segments"""
+    """Retrace tous les segments en fonction de la variable etat"""
     fltk.efface("etat")
     for j in range(len(indices) + 1):
         for i in range(len(indices[0]) + 1):
@@ -470,8 +428,9 @@ def dessine_etat(indices, etat, taille_case, taille_marge):
                     trace_ligne(k, x_sommets[0], y_sommets[0], x_sommets[1], y_sommets[1], "#FF0000")
 
 
+# fonction pour dessine_etat
 def trace_ligne(k, x_sommet1, y_sommet1, x_sommet2, y_sommet3, couleurs):
-    """Sous fonction de dessine_etat
+    """Sous-fonction de dessine_etat
     Paramètres:
         k -> Int
         x_sommet1 -> Int
@@ -523,10 +482,9 @@ def saisie_nom_fichier_graphique():
 
 
 def fichier_vers_liste(nom_fichier):
-    """Vérifie le format et convertie le fichier en indices puis le renvoie.
+    """Convertie le fichier indiqué en liste de liste.
     Paramètres:
         nom_fichier -> Str
-                    : grille0.txt
     Return:
         indices -> List[List]
                 : [[None, None, None, None, 0, None], ...]
@@ -550,14 +508,6 @@ def fichier_vers_liste(nom_fichier):
 
 
 def fichier_vers_dico(nom_fichier):
-    """Convertie le fichier en dictionnaire et le renvoie.
-    Paramètres:
-        nom_fichier -> Str
-                    : etat_grille0.txt
-    Return:
-        dico : {((0, 1), (0, 2)): 1, ...}
-    """
-    print(nom_fichier)
     f = open(nom_fichier, "r")
     contenu = f.read()
     cles = []
@@ -587,8 +537,6 @@ def fichier_vers_dico(nom_fichier):
 
 
 def sauvegarder(indices, etat):
-    """Dans 'elif sauvegarde'. Pour gérer l'interface graphique lors de la sauvegarde.
-    """
     fltk.image(0, 0, "ressources/fond_d'ecran.gif",
                ancrage="nw", tag="fond")
     fltk.image(500, 490, "ressources/bouton_valider.gif",
@@ -817,8 +765,6 @@ def Slitherlink():
 # Tache 4 - RECHERCHE DE SOLUTIONS
 
 def verif_case_autour_sommet(indices, etat, sommet):
-    """Sous fonction de solveur, vérifie si les indices sont respectés.
-    """
     cases = fonction_voisins((sommet[0] - 1, sommet[1] - 1))
     for case in cases:
         if 0 <= case[0] < len(indices) and 0 <= case[1] < len(indices[0]):
@@ -856,15 +802,7 @@ def applique_solveur(grille, graphique):
     return None
 
 
-def solveur(indices, etat, sommet, graphique):
-    """Résout la grille actuelle et l'affiche. Peut afficher toutes les étapes
-    graphiquement si graphique vaut True.
-    Paramètres:
-        indices -> List
-        etat -> Dict
-        sommet -> Tuple
-        graphique -> Bool
-    """
+def solveur(indices, etat, sommet, graphique, i=0):
     voisins = fonction_voisins(sommet)
     nb_voisins = 0
     for voisin in voisins:
@@ -900,8 +838,10 @@ def solveur(indices, etat, sommet, graphique):
                                    0 <= voisin2[1] <= len(indices[0]):
                                     interdire_segment(etat, (sommet, voisin2))
 
-                    if verif_case_autour_sommet(indices, etat, sommet) is True:
-                        res_appel = solveur(indices, etat, voisin, graphique)
+                    cond1 = verif_case_autour_sommet(indices, etat, sommet)
+
+                    if cond1 is True:
+                        res_appel = solveur(indices, etat, voisin, graphique, i + 1)
                         if res_appel is not False:
                             return res_appel
 
