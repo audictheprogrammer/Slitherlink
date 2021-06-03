@@ -1,9 +1,43 @@
-# Slitherlink game by Audic XU the best and Damien BENAMARI the almost best.
 
 import fltk
+import sys
+# Slitherlink game by Audic XU the best and Damien BENAMARI the almost best.
 
 
 # Tache 1 - STRUCTURES DE DONNEES
+
+
+def saisie_nom_fichier(argv):
+    """Vérifie si le fichier a été saisi, sinon demande de le saisir.
+    Paramètres:
+        argv -> List
+    Return:
+        nom_fichier -> Str
+    """
+
+    if len(sys.argv) == 2:
+        return sys.argv[1]
+    else:
+        return "grille0.txt"
+
+
+def verif_grille(nom_fichier):
+    """Vérifie si les caractères du fichier sont autorisés.
+    Paramètres:
+        nom_fichier -> Str
+    Return:
+        cond -> Bool
+    """
+    cond = True
+    carac_autorise = ["_", "3", "2", "1", "0", "\n"]
+    f = open(nom_fichier, "r")
+    contenu = f.read()
+    for carac in contenu:
+        if carac not in carac_autorise:
+            cond = False
+    return cond
+
+
 
 def est_trace(etat, seg):
     seg_inv = seg[1], seg[0]
@@ -53,6 +87,37 @@ def effacer_segment(etat, seg):
         etat.pop(inv_seg)
 
 
+def segments_tests(etat, sommet, version):
+    """Renvoie la liste des segments interdits adjacents à sommet dans etat
+    Paramètres:
+        etat -> Dict
+        sommet -> Tuple
+    Return:
+        lst -> List[Tuple(Tuple, Tuple)]
+    """
+    voisins = fonction_voisins(sommet)
+    lst_traces = []
+    lst_interdits = []
+    lst_vierges = []
+    for cle in etat:
+        i_cle, j_cle = cle
+        for elem in voisins:
+            if ((sommet == i_cle and elem == j_cle) or
+            (elem == i_cle and sommet == j_cle)):
+                if etat[cle] == 1:
+                    lst_traces.append(cle)
+                elif etat[cle] == -1:
+                    lst_interdits.append(cle)
+                else:
+                    lst_vierges.append(cle)
+    if version == "traces":
+        return lst_traces
+    if version == "interdits":
+        return lst_interdits
+    if version == "vierges":
+        return lst_vierges
+
+
 def fonction_voisins(sommet):
     i_sommet, j_sommet = sommet
     voisins = [(i_sommet + 1, j_sommet), (i_sommet - 1, j_sommet),
@@ -60,19 +125,15 @@ def fonction_voisins(sommet):
     return voisins
 
 
-def segments_tests(etat, sommet, fonction):
-    """Renvoie la liste des segments tracés/interdits/vierges adjacents par
-     rapport à sommet dans etat.
+def segments_testsV2(etat, sommet, fonction):
+    """Renvoie la liste des segments tracés/interdits/vierges adjacents
+     à sommet dans etat.
     Paramètres:
         etat    -> Dict: {((0, 1), (1, 1)): -1, ...}
         sommet  -> Tuple: (2, 1)
     Return:
         lst -> List[Tuple(Tuple, Tuple)]
             : [((1, 1), (2, 1)), ((1, 1), (1, 2))]
-    Exemple:
-        >>> etat = {((0, 1), (0, 2)): 1, ((0, 0), (0, 1)): 1}
-        >>> segments_tests(etat, (0, 1), est_trace)
-        [((0, 1), (0, 2)), ((0, 1), (0, 0))]
     """
     voisins = fonction_voisins(sommet)
     lst = []
@@ -84,7 +145,8 @@ def segments_tests(etat, sommet, fonction):
 
 
 def statut_case(indices, etat, case):
-    """Renvoie le statut de la case: None, 0, 1 ou -1.
+    """
+    Renvoie le statut de la case: None, 0, 1 ou -1.
     Paramètres:
         indices -> List[List]
                 : [[None, None, None, None, 0, None], ...]
@@ -92,15 +154,6 @@ def statut_case(indices, etat, case):
         case: Tuple
     Return:
         Int or None
-    Exemple:
-        >>> indices, etat, case = [[2, 2], [2, 2]], {}, (1, 1)
-        >>> statut_case(indices, etat, case)
-        1
-
-        >>> etat = {((1, 2), (2, 2)): 1, ((1, 1), (1, 2)): 1}
-        >>> indices, case = [[2, 2], [2, 2]], (1, 1)
-        >>> statut_case(indices, etat, case)
-        0
     """
     if indices[case[0]][case[1]] is None:
         return None
@@ -123,29 +176,16 @@ def statut_case(indices, etat, case):
         else:
             return 1
 
-
 # Tache 2 - CONDITIONS DE VICTOIRE
 
+
 def partie_finie(indices, etat):
-    """Détecte la fin de la partie: lorsque la grille est résolue. Se décompose
-    de deux conditions:
-    - Chaque indice est satisfait
-    - L'ensemble des segments tracés forme une unique boucle fermée.
-    Paramètres:
-        indices -> List[List]
-                : [[None, None, None, None, 0, None], ...]
-        etat: Dict
-    Return:
-        Bool: True or False
-    """
-    # Première condition
     for i in range(len(indices)):
         for j in range(len(indices[0])):
             case = i, j
             res = statut_case(indices, etat, case)
-            if res is not None and res != 0:
+            if res is not None and res != 0 :
                 return False
-    # Deuxième condition
     lst_segment_depart = choix_segment_depart(indices, 3)
     if lst_segment_depart == []:
         lst_segment_depart = choix_segment_depart(indices, 2)
@@ -164,13 +204,6 @@ def partie_finie(indices, etat):
 
 
 def choix_segment_depart(indices, n):
-    """Sous fonction partie_finie. Choisit un sommmet pour être le sommet
-     de départ ou les sommets de départ.
-    Paramètres:
-        indices -> List[List]
-                : [[None, None, None, None, 0, None], ...]
-        n -> Int
-    """
     lst_segment_depart = []
     for i in range(len(indices)):
         for j in range(len(indices[0])):
@@ -185,24 +218,15 @@ def choix_segment_depart(indices, n):
 
 
 def longueur_boucle(etat, seg):
-    """Sous fonction de partie_finie. Vérifie que la boucle soit bien fermée.
-    Paramètres:
-        etat -> Dict
-             : {((0, 1), (0, 2)): 1, ...}
-        seg -> Tuple(Tuple)
-            : ((0, 0), (0, 1))
-    Return:
-        nb_seg: Int or None
-    """
-    sommet1, sommet2 = seg
-    depart = sommet1
-    precedent, courant = sommet1, sommet2
+    i_seg, j_seg = seg
+    depart = i_seg
+    precedent, courant = i_seg, j_seg
     nb_seg = 1
     while courant != depart:
         voisins = fonction_voisins(courant)
         cmpt = 0
         for voisin in voisins:
-            if est_trace(etat, (voisin, courant)) is True:
+            if est_trace(etat, (voisin, courant)) == True:
                 cmpt += 1
                 if voisin != precedent:
                     adjacent = voisin
@@ -218,21 +242,11 @@ def longueur_boucle(etat, seg):
 # Tache 3 - INTERFACE GRAPHIQUE
 
 def affiche_images(lst):
-    """Affiche toutes les images en utilisant une liste prédéfinie."""
     for dico in lst:
-        fltk.image(dico["xpos"], dico["ypos"], dico["nom"], ancrage="nw")
+        fltk.image(dico["xpos"], dico["ypos"], dico["nom"], ancrage = "nw")
     fltk.mise_a_jour()
 
-
 def menus(page, lst):
-    """
-    Paramètres:
-        page -> Bool
-        lst -> List[Dict]
-            : [{'xpos': 0, 'ypos': 0, 'nom': "ressources/fond_d'ecran_menu.gif",...]
-    Return:
-        instruction -> Str
-    """
     if page == "charger_grille":
         nom_fichier = None
     boucle = True
@@ -243,10 +257,10 @@ def menus(page, lst):
         if msg is not None:
             return msg
         if page == "charger_grille":
-            if clic_bouton(ev, 500, 490, (200, 100)) is True:
+            if clic_bouton(ev, 500, 490, (200, 100)) == True:
                 if nom_fichier is not None:
                     return nom_fichier, "etat_" + nom_fichier
-            if clic_bouton(ev, 100, 270, (600, 60)) is True:
+            if clic_bouton(ev, 100, 270, (600, 60)) == True:
                 fltk.efface("nom")
                 nom_fichier = saisie_nom_fichier_graphique()
         if tev == "Quitte":
@@ -255,15 +269,6 @@ def menus(page, lst):
 
 
 def clic_bouton(ev, absc, ordo, dimension):
-    """Indique si la zone a été cliqué.
-    Paramètres:
-        ev -> fltk.event
-        absc, ordo -> Tuple(Int)
-                   : correspond au point en haut à gauche
-        dimension -> tuple
-    Return:
-        Bool -> True or False
-    """
     lg, ht = dimension
     tev = fltk.type_ev(ev)
     if tev == "ClicGauche":
@@ -271,7 +276,6 @@ def clic_bouton(ev, absc, ordo, dimension):
             if fltk.ordonnee(ev) >= ordo and fltk.ordonnee(ev) <= ordo + ht:
                 return True
             return False
-
 
 def fonction_jeu(indices, etat, t_case, t_marge, lst_jeu, lst_condition, lg):
     """Boucle pour la phase de jeu, doit retourner une instruction pour
@@ -295,28 +299,24 @@ def fonction_jeu(indices, etat, t_case, t_marge, lst_jeu, lst_condition, lg):
         if tev == "Quitte":
             Jouer = False
             return "quitter"
-        if partie_finie(indices, etat) is True:
+        if partie_finie(indices, etat) == True:
             Jouer = False
-            t_pol = len(indices) * 25
-            fltk.texte((lg + 250) // 2, 265, "Bravo !!!", ancrage="center",
-                       couleur="#B6FF00", police="sketchy in snow",
-                       taille=str(t_pol))
+            t_pol = len(indices)*25
+            fltk.texte((lg + 250)//2, 265, "Bravo !!!", ancrage = "center",
+                       couleur = "#B6FF00", police = "sketchy in snow",
+                       taille = str(t_pol))
             return "victoire"
         fltk.mise_a_jour()
     fltk.ferme_fenetre()
     return False
 
-
 def event(ev, lst):
     for dico in lst:
         if dico["message"] != "inutile":
-            if clic_bouton(ev, dico["xpos"], dico["ypos"], dico["dim"]) is True:
+            if clic_bouton(ev, dico["xpos"], dico["ypos"], dico["dim"]) == True:
                 return dico["message"]
 
-
 def partie(ev, etat, lst, lst_jeu, taille_case, taille_marge, indices):
-    """Utilisé par fonction_jeu et fait partie des intructions pour 'elif partie'.
-    """
     tev = fltk.type_ev(ev)
     for elem in lst:
         if tev == elem:
@@ -350,19 +350,17 @@ def initialisation_fenetre(indices, etat, taille_case, taille_marge):
     largeur = len(indices[0]) * taille_case + 2 * taille_marge + 250
     hauteur = max(6, len(indices)) * taille_case + 2 * taille_marge
     fltk.cree_fenetre(largeur, hauteur)
-    fltk.rectangle(0, 0, largeur - 250, hauteur, couleur="#00C8FF",
-                   remplissage="#00C8FF", tag="cote_jeu")
-    fltk.rectangle(largeur - 250, 0, largeur, hauteur, couleur="#007F7F",
-                   remplissage="#007F7F", tag="menu_cote")
+    fltk.rectangle(0, 0, largeur - 250, hauteur, couleur = "#00C8FF",
+                   remplissage = "#00C8FF", tag = "cote_jeu")
+    fltk.rectangle(largeur - 250, 0, largeur, hauteur, couleur = "#007F7F",
+                   remplissage = "#007F7F", tag = "menu_cote")
     trace_fenetre(indices, taille_case, taille_marge)
     dessine_etat(indices, etat, taille_case, taille_marge)
     dessine_indices(indices, etat, taille_case, taille_marge)
     return None
 
-
 def calcul_sommets(taille_marge, taille_case, coef):
     return taille_marge + coef * taille_case
-
 
 def trace_fenetre(indices, taille_case, taille_marge):
     """Fonction auxiliaire permettant de tracer les cases
@@ -390,18 +388,6 @@ def trace_fenetre(indices, taille_case, taille_marge):
 
 
 def indique_segment(x, y, taille_case, taille_marge, indices):
-    """Indique quel segment vient d'être cliqué.
-    Paramètres:
-        x -> Int
-        y -> Int
-        taille_case -> Int
-        taille_marge -> Int
-        indices -> List[List]
-                : [[None, None, None, None, 0, None], ...]
-    Return:
-        segment -> Tuple(Tuple)
-                : ((1, 0), (1, 1))
-    """
     for j in range(len(indices)):
         for i in range(len(indices[0])):
             sommets_x = []
@@ -414,25 +400,26 @@ def indique_segment(x, y, taille_case, taille_marge, indices):
             dy = 0.2 * taille_case
             if sommets_x[0] <= x <= sommets_x[1] and\
                sommets_y[0] - dy <= y <= sommets_y[0] + dy:
-                return (j, i), (j, i + 1)
+               return ((j, i), (j, i + 1))
             if sommets_y[0] <= y <= sommets_y[1] and\
                sommets_x[0] - dx <= x <= sommets_x[0] + dx:
-                return (j, i), (j + 1, i)
+               return ((j, i), (j + 1, i))
 
             # Pour les cas qui n'ont pas été pris en compte
             if i == len(indices[0]) - 1:
                 if sommets_x[1] - dx <= x <= sommets_x[1] + dx and\
                    sommets_y[0] <= y <= sommets_y[1]:
-                    return (j, i + 1), (j + 1, i + 1)
+                   return ((j, i + 1), (j + 1, i + 1))
             if j == len(indices) - 1:
                 if sommets_x[0] <= x <= sommets_x[1] and\
                    sommets_y[1] - dy <= y <= sommets_y[1] + dy:
-                    return (j + 1, i), (j + 1, i + 1)
+                   return ((j + 1, i), (j + 1, i + 1))
     return None
 
 
+
 def dessine_indices(indices, etat, taille_case, taille_marge):
-    """Efface puis retrace tous les indices c'est-à-dire les chiffres sur les cases"""
+    """Retrace tous les segments en fonction de la variable indices"""
     fltk.efface("indices")
     for i in range(len(indices[0])):
         for j in range(len(indices)):
@@ -446,13 +433,12 @@ def dessine_indices(indices, etat, taille_case, taille_marge):
                     couleur_indices = "#000000"
                 elif res < 0:
                     couleur_indices = "#B12B3B"
-                fltk.texte(x_mid, y_mid, chaine=indices[j][i],
-                           couleur=couleur_indices, ancrage="center",
-                           police="sketchy in snow", taille=50, tag="indices")
-
+                fltk.texte(x_mid, y_mid, chaine = indices[j][i],
+                    couleur = couleur_indices, ancrage = "center",
+                    police = "sketchy in snow", taille = 50, tag="indices")
 
 def dessine_etat(indices, etat, taille_case, taille_marge):
-    """Efface puis retrace tous les segments"""
+    """Retrace tous les segments en fonction de la variable etat"""
     fltk.efface("etat")
     for j in range(len(indices) + 1):
         for i in range(len(indices[0]) + 1):
@@ -463,15 +449,15 @@ def dessine_etat(indices, etat, taille_case, taille_marge):
             for a in range(2):
                 x_sommets.append(calcul_sommets(taille_marge, taille_case, (i + a)))
                 y_sommets.append(calcul_sommets(taille_marge, taille_case, (j + a)))
-            for k in range(2):
+            for k in range (2):
                 if est_trace(etat, segments[k]):
                     trace_ligne(k, x_sommets[0], y_sommets[0], x_sommets[1], y_sommets[1], "#004A7F")
                 elif est_interdit(etat, segments[k]):
                     trace_ligne(k, x_sommets[0], y_sommets[0], x_sommets[1], y_sommets[1], "#FF0000")
 
-
+#fonction pour dessine_etat
 def trace_ligne(k, x_sommet1, y_sommet1, x_sommet2, y_sommet3, couleurs):
-    """Sous fonction de dessine_etat
+    """Sous-fonction de dessine_etat
     Paramètres:
         k -> Int
         x_sommet1 -> Int
@@ -482,15 +468,17 @@ def trace_ligne(k, x_sommet1, y_sommet1, x_sommet2, y_sommet3, couleurs):
     """
     if k == 0:
         fltk.ligne(x_sommet1, y_sommet1, x_sommet2, y_sommet1,
-                   couleur=couleurs, epaisseur=3, tag="etat")
+                   couleur = couleurs, epaisseur=3, tag="etat")
     if k == 1:
         fltk.ligne(x_sommet1, y_sommet1, x_sommet1, y_sommet3,
-                   couleur=couleurs, epaisseur=3, tag="etat")
+                   couleur = couleurs, epaisseur=3, tag="etat")
 
 
 def saisie_nom_fichier_graphique():
     """Permet de saisir le nom du fichier pour choisir la partie à charger.
     """
+
+    nom_fichier = ""
     touches = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l",
                "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x",
                "y", "z"]
@@ -517,16 +505,17 @@ def saisie_nom_fichier_graphique():
             if touche == "BackSpace" and lst_nom != []:
                 lst_nom.pop()
         fltk.efface("nom")
-        fltk.texte(400, 300, lst_nom, ancrage="center",
-                   police="sketchy in snow", taille="50", tag="nom")
+        fltk.texte(400, 300, lst_nom, ancrage = "center",
+                   police = "sketchy in snow", taille = "50", tag="nom")
         fltk.mise_a_jour()
 
 
+
+
 def fichier_vers_liste(nom_fichier):
-    """Vérifie le format et convertie le fichier en indices puis le renvoie.
+    """Convertie le fichier indiqué en liste de liste.
     Paramètres:
         nom_fichier -> Str
-                    : grille0.txt
     Return:
         indices -> List[List]
                 : [[None, None, None, None, 0, None], ...]
@@ -548,16 +537,7 @@ def fichier_vers_liste(nom_fichier):
             liste_temporaire.append(int(carac))
     return indices
 
-
 def fichier_vers_dico(nom_fichier):
-    """Convertie le fichier en dictionnaire et le renvoie.
-    Paramètres:
-        nom_fichier -> Str
-                    : etat_grille0.txt
-    Return:
-        dico : {((0, 1), (0, 2)): 1, ...}
-    """
-    print(nom_fichier)
     f = open(nom_fichier, "r")
     contenu = f.read()
     cles = []
@@ -565,7 +545,7 @@ def fichier_vers_dico(nom_fichier):
     dico = {}
     contenu = contenu[1:]
     contenu = contenu[:-1]
-    while len(contenu) != 0:
+    while len(contenu)!= 0:
         tuples = []
         chaine_a = contenu[0:16]
         for i in range(2):
@@ -587,27 +567,26 @@ def fichier_vers_dico(nom_fichier):
 
 
 def sauvegarder(indices, etat):
-    """Dans 'elif sauvegarde'. Pour gérer l'interface graphique lors de la sauvegarde.
-    """
     fltk.image(0, 0, "ressources/fond_d'ecran.gif",
-               ancrage="nw", tag="fond")
+               ancrage = "nw", tag = "fond")
     fltk.image(500, 490, "ressources/bouton_valider.gif",
-               ancrage="nw", tag="valider")
+               ancrage = "nw", tag = "valider")
     fltk.image(100, 490, "ressources/bouton_retour.gif",
-               ancrage="nw", tag="retour")
-    fltk.rectangle(100, 270, 700, 330, couleur="black",
-                   remplissage="white", tag="barre_blanche")
-    fltk.texte(75, 70, "Saisissez le nom du fichier :", couleur="#4CFF00",
-               police="sketchy in snow", taille="50", tag="choix")
+               ancrage = "nw", tag = "retour")
+    fltk.rectangle(100, 270, 700, 330, couleur = "black",
+                   remplissage = "white", tag = "barre_blanche")
+    fltk.texte(75, 70, "Saisissez le nom du fichier :", couleur = "#4CFF00",
+               police = "sketchy in snow", taille = "50", tag = "choix")
     sauvegarde = True
     while sauvegarde:
         ev = fltk.donne_ev()
-        if clic_bouton(ev, 100, 270, (600, 60)) is True:
+        tev = fltk.type_ev(ev)
+        if clic_bouton(ev, 100, 270, (600, 60)) == True:
             fltk.efface("nom")
             nom_fichier = saisie_nom_fichier_graphique()
-        if clic_bouton(ev, 500, 490, (200, 100)) is True:
+        if clic_bouton(ev, 500, 490, (200, 100)) == True:
             sauvegarde = False
-        if clic_bouton(ev, 100, 490, (200, 100)) is True:
+        if clic_bouton(ev, 100, 490, (200, 100)) == True:
             return True
         fltk.mise_a_jour()
     f_etat = open("etat_" + nom_fichier, "w")
@@ -627,7 +606,6 @@ def sauvegarder(indices, etat):
     contenu_b = f_indices.write(chaine_b)
     f_indices.close()
     return False
-
 
 # Boucle principale
 def Slitherlink():
@@ -665,7 +643,8 @@ def Slitherlink():
     partie = False
     sauvegarde = False
     while slitherlink:
-        if fenetre is False and partie is False:
+        print(fenetre)
+        if fenetre == False and partie == False:
             fltk.cree_fenetre(800, 600)
             fenetre = True
         if menu:
@@ -684,22 +663,19 @@ def Slitherlink():
                 slitherlink = False
         elif choix_grille:
             affiche_images(lst_choix)
-            fltk.texte(200, 20, "Choix de la grille :", couleur="#4CFF00",
-               police="sketchy in snow", taille="50", tag="choix")
+            fltk.texte(200, 20, "Choix de la grille :", couleur = "#4CFF00",
+               police = "sketchy in snow", taille = "50", tag = "choix")
             choix = menus(choix_grille, lst_choix)
             nom_fichier = choix
-
             if choix == "quitter":
                 choix_grille = False
                 slitherlink = False
                 fltk.ferme_fenetre()
-
             elif choix == "menu":
                 choix_grille = False
                 menu = True
-
             elif choix == "grille1.txt" or choix == "grille2.txt" or\
-                 choix == "grille3.txt" or choix == "grille4.txt":
+                 choix == "grille3.txt" or choix =="grille4.txt":
                 indices = fichier_vers_liste(choix)
                 if indices is not False:
                     choix_grille = False
@@ -708,14 +684,14 @@ def Slitherlink():
                     etat = {}
                     fltk.ferme_fenetre()
                 if indices is False:
-                    fltk.texte(190, 100, "Grille invalide", couleur="#FF0000",
-                               police="sketchy in snow", taille="70", tag="erreur")
+                    fltk.texte(190, 100, "Grille invalide",
+                           couleur = "#FF0000", police = "sketchy in snow",
+                           taille = "70", tag = "erreur")
                     fltk.attend_clic_gauche()
-
         elif charger_grille:
             affiche_images(lst_charger)
-            fltk.texte(75, 70, "Saisissez le nom du fichier :", couleur="#4CFF00",
-               police="sketchy in snow", taille="50", tag="choix")
+            fltk.texte(75, 70, "Saisissez le nom du fichier :", couleur = "#4CFF00",
+               police = "sketchy in snow", taille = "50", tag = "choix")
             charger = menus("charger_grille", lst_charger)
             if charger == "quitter":
                 charger_grille = False
@@ -734,10 +710,10 @@ def Slitherlink():
                     fenetre = False
                     fltk.ferme_fenetre()
                 if indices is False:
-                    fltk.texte(190, 150, "Grille invalide", couleur="#FF0000",
-                               police="sketchy in snow", taille="70", tag="erreur")
+                    fltk.texte(190, 150, "Grille invalide",
+                           couleur = "#FF0000", police = "sketchy in snow",
+                           taille = "70", tag = "erreur")
                     fltk.attend_clic_gauche()
-
         elif partie:
             lg = len(indices[0]) * taille_case + 2 * taille_marge
             lst_jeu = [{"xpos": lg + 25, "ypos": 40, "nom": "ressources/bouton_sauvegarder.gif", "dim": (200, 100), "message": ("sauvegarder", indices, etat)},
@@ -750,57 +726,55 @@ def Slitherlink():
             if jouer == "solution_graphique":
                 if choix is not None:
                     if choix == "grille1.txt" or choix == "grille2.txt" or\
-                            choix == "grille3.txt" or choix == "grille4.txt":
+                            choix == "grille3.txt" or choix =="grille4.txt":
                         grille = choix
                 else:
                     grille = nom_fichier
+
+
                 etat_solution = applique_solveur(grille, True)
                 if etat_solution is not None:
                     dessine_etat(indices, etat_solution, taille_case, taille_marge)
                     t_pol = len(indices)*25
-                    fltk.texte((lg + 250)//2, 265, "Bouuuh !!!", ancrage="center",
-                               couleur="#FF0000", police="sketchy in snow",
-                               taille=str(t_pol))
+                    fltk.texte((lg + 250)//2, 265, "Bouuuh !!!", ancrage = "center",
+                               couleur = "#FF0000", police = "sketchy in snow",
+                               taille = str(t_pol))
                 fltk.attend_clic_gauche()
                 fltk.ferme_fenetre()
-
             if jouer == "quitter":
                 fltk.ferme_fenetre()
                 partie = False
                 slitherlink = False
-
             if jouer == "menu":
                 fltk.ferme_fenetre()
                 partie = False
                 menu = True
-
             if jouer == "victoire":
                 etat = {}
                 fltk.attend_clic_gauche()
                 fltk.ferme_fenetre()
-
             if len(jouer) == 3:
                 fltk.ferme_fenetre()
                 sauvegarde = True
                 partie = False
-
             if jouer == "solution":
                 if choix is not None:
                     if choix == "grille1.txt" or choix == "grille2.txt" or\
-                            choix == "grille3.txt" or choix == "grille4.txt":
+                            choix == "grille3.txt" or choix =="grille4.txt":
                         grille = choix
                 else:
                     grille = nom_fichier
+
+
                 etat_solution = applique_solveur(grille, False)
                 if etat_solution is not None:
                     dessine_etat(indices, etat_solution, taille_case, taille_marge)
                     t_pol = len(indices)*25
-                    fltk.texte((lg + 250)//2, 265, "Bouuuh !!!", ancrage="center",
-                               couleur="#FF0000", police="sketchy in snow",
-                               taille=str(t_pol))
+                    fltk.texte((lg + 250)//2, 265, "Bouuuh !!!", ancrage = "center",
+                               couleur = "#FF0000", police = "sketchy in snow",
+                               taille = str(t_pol))
                 fltk.attend_clic_gauche()
                 fltk.ferme_fenetre()
-
         elif sauvegarde:
             message, indices, etat = jouer
             partie = sauvegarder(indices, etat)
@@ -816,9 +790,9 @@ def Slitherlink():
 
 # Tache 4 - RECHERCHE DE SOLUTIONS
 
+
 def verif_case_autour_sommet(indices, etat, sommet):
-    """Sous fonction de solveur, vérifie si les indices sont respectés.
-    """
+    sommet2 = sommet[0] - 1 ,sommet[1] - 1
     cases = fonction_voisins((sommet[0] - 1, sommet[1] - 1))
     for case in cases:
         if 0 <= case[0] < len(indices) and 0 <= case[1] < len(indices[0]):
@@ -828,6 +802,7 @@ def verif_case_autour_sommet(indices, etat, sommet):
     return True
 
 
+
 def applique_solveur(grille, graphique):
     """Détermine le sommet de départ et applique le solveur depuis ce sommet.
     Paramètres:
@@ -835,7 +810,6 @@ def applique_solveur(grille, graphique):
     Return
         res -> Dict: etat
         res -> None: Pas de solution
-
     """
     etat_temporaire = {}
     indices = fichier_vers_liste(grille)
@@ -850,25 +824,20 @@ def applique_solveur(grille, graphique):
         # tracer_segment(etat_temporaire, segment_depart)
         res = solveur(indices, etat_temporaire, sommet_depart, graphique)
         if res is not False:
+            print(f"Solution trouvé: \n{res}")
             return res
-        # effacer_segment(etat_temporaire, segment_depart)
+        #effacer_segment(etat_temporaire, segment_depart)
 
+    print("Pas de solution")
     return None
 
 
-def solveur(indices, etat, sommet, graphique):
-    """Résout la grille actuelle et l'affiche. Peut afficher toutes les étapes
-    graphiquement si graphique vaut True.
-    Paramètres:
-        indices -> List
-        etat -> Dict
-        sommet -> Tuple
-        graphique -> Bool
-    """
+def solveur(indices, etat, sommet, graphique, i = 0):
     voisins = fonction_voisins(sommet)
     nb_voisins = 0
+    lst_seg = []
     for voisin in voisins:
-        if est_trace(etat, (voisin, sommet)) is True:
+        if est_trace(etat, (voisin, sommet)) == True:
             nb_voisins += 1
     if nb_voisins == 2:
         # verifie les indices
@@ -885,7 +854,7 @@ def solveur(indices, etat, sommet, graphique):
     elif nb_voisins < 2:
         for voisin in voisins:
             if 0 <= voisin[0] <= len(indices) and\
-               0 <= voisin[1] <= len(indices[0]):
+                0 <= voisin[1] <= len(indices[0]):
                 if est_vierge(etat, (voisin, sommet)) is True:
                     tracer_segment(etat, (sommet, voisin))
                     if graphique is True:
@@ -897,11 +866,13 @@ def solveur(indices, etat, sommet, graphique):
                         for voisin2 in voisins:
                             if est_vierge(etat, (sommet, voisin2)) is True:
                                 if 0 <= voisin2[0] <= len(indices) and\
-                                   0 <= voisin2[1] <= len(indices[0]):
+                                0 <= voisin2[1] <= len(indices[0]):
                                     interdire_segment(etat, (sommet, voisin2))
 
-                    if verif_case_autour_sommet(indices, etat, sommet) is True:
-                        res_appel = solveur(indices, etat, voisin, graphique)
+                    cond1 = verif_case_autour_sommet(indices, etat, sommet)
+
+                    if cond1 is True:
+                        res_appel = solveur(indices, etat, voisin, graphique, i + 1)
                         if res_appel is not False:
                             return res_appel
 
@@ -913,7 +884,15 @@ def solveur(indices, etat, sommet, graphique):
         return False
 
 
-# Lance le jeu
+
+
+
+
+# nom_fichier = saisie_nom_fichier(sys.argv)
+# nom_fichier = "grille1.txt"
+# applique_solveur(nom_fichier)
+
+
 
 if __name__ == "__main__":
     Slitherlink()
