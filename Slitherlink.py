@@ -279,6 +279,7 @@ def fonction_jeu(indices, etat, t_case, t_marge, lst_jeu, lst_condition, lg):
         indices -> List[List]
                 : [[None, None, None, None, 0, None], ...]
         etat -> Dict
+             : {((0, 1), (0, 2)): 1, ...}
     Return:
         instruction -> Str
                     : "quitter", "menu", "sauvegarder", "solution", "choix_grille"
@@ -307,6 +308,14 @@ def fonction_jeu(indices, etat, t_case, t_marge, lst_jeu, lst_condition, lg):
 
 
 def event(ev, lst):
+    """Indique l'instruction choisie par le joueur.
+    Paramètres:
+        ev -> fltk.event
+        lst -> List[Dict]
+            : [{"xpos": 123, "ypos": 234...}, {}...]
+    Return:
+        instruction -> Str
+    """
     for dico in lst:
         if dico["message"] != "inutile":
             if clic_bouton(ev, dico["xpos"], dico["ypos"], dico["dim"]) is True:
@@ -315,6 +324,14 @@ def event(ev, lst):
 
 def partie(ev, etat, lst, lst_jeu, taille_case, taille_marge, indices):
     """Utilisé par fonction_jeu et fait partie des intructions pour 'elif partie'.
+    Paramètres:
+        ev -> fltk.event
+        etat -> Dict
+        lst -> List: ["ClicGauche", "ClicDroit"]
+        lst_jeu -> List[Dict]
+        taille_case -> Int: 75
+        taille_marge -> Int: 40
+        indices -> List[List]
     """
     tev = fltk.type_ev(ev)
     for elem in lst:
@@ -343,8 +360,8 @@ def initialisation_fenetre(indices, etat, taille_case, taille_marge):
     """Initialise la fenêtre du jeu
     Paramètres:
         indices -> List[List], permet de connaitre la taille de la grille.
-        taille_case -> Int
-        taille_marge -> Int
+        taille_case -> Int: 75
+        taille_marge -> Int: 40
     """
     largeur = len(indices[0]) * taille_case + 2 * taille_marge + 250
     hauteur = max(6, len(indices)) * taille_case + 2 * taille_marge
@@ -367,10 +384,9 @@ def trace_fenetre(indices, taille_case, taille_marge):
     """Fonction auxiliaire permettant de tracer les cases
     Paramètres:
         indices -> List[List], permet de connaitre la taille de la grille.
-        taille_case -> Int
-        taille_marge -> Int
+        taille_case -> Int: 75
+        taille_marge -> Int: 40
     """
-
     for i in range(len(indices[0]) + 1):
         for j in range(len(indices) + 1):
             sommets_x = []
@@ -393,8 +409,8 @@ def indique_segment(x, y, taille_case, taille_marge, indices):
     Paramètres:
         x -> Int
         y -> Int
-        taille_case -> Int
-        taille_marge -> Int
+        taille_case -> Int: 75
+        taille_marge -> Int: 40
         indices -> List[List]
                 : [[None, None, None, None, 0, None], ...]
     Return:
@@ -431,7 +447,15 @@ def indique_segment(x, y, taille_case, taille_marge, indices):
 
 
 def dessine_indices(indices, etat, taille_case, taille_marge):
-    """Efface puis retrace tous les indices c'est-à-dire les chiffres sur les cases"""
+    """Efface puis retrace tous les indices c'est-à-dire les chiffres sur les cases
+    Paramètres:
+        indices -> List[List]
+                : [[None, None, None, None, 0, None], ...]
+        etat -> Dict
+             : {((0, 1), (0, 2)): 1, ...}
+        taille_case -> Int: 75
+        taille_marge -> Int: 40
+    """
     fltk.efface("indices")
     for i in range(len(indices[0])):
         for j in range(len(indices)):
@@ -451,7 +475,15 @@ def dessine_indices(indices, etat, taille_case, taille_marge):
 
 
 def dessine_etat(indices, etat, taille_case, taille_marge):
-    """Efface puis retrace tous les segments"""
+    """Efface puis retrace tous les segments
+    Paramètres:
+        indices -> List[List]
+                : [[None, None, None, None, 0, None], ...]
+        etat -> Dict
+             : {((0, 1), (0, 2)): 1, ...}
+        taille_case -> Int: 75
+        taille_marge -> Int: 40
+    """
     fltk.efface("etat")
     for j in range(len(indices) + 1):
         for i in range(len(indices[0]) + 1):
@@ -464,19 +496,20 @@ def dessine_etat(indices, etat, taille_case, taille_marge):
                 y_sommets.append(calcul_sommets(taille_marge, taille_case, (j + a)))
             for k in range(2):
                 if est_trace(etat, segments[k]):
+                    print(x_sommets[0], y_sommets[0], x_sommets[1], y_sommets[1])
                     trace_ligne(k, x_sommets[0], y_sommets[0], x_sommets[1], y_sommets[1], "#004A7F")
                 elif est_interdit(etat, segments[k]):
                     trace_ligne(k, x_sommets[0], y_sommets[0], x_sommets[1], y_sommets[1], "#FF0000")
 
 
 def trace_ligne(k, x_sommet1, y_sommet1, x_sommet2, y_sommet3, couleurs):
-    """Sous fonction de dessine_etat
+    """Sous fonction de dessine_etat.
     Paramètres:
         k -> Int
-        x_sommet1 -> Int
-        y_sommet1 -> Int
-        x_sommet2 -> Int
-        y_sommet3 -> Int
+        x_sommet1, y_sommet -> Tuple(Int)
+                            : sommet de référence
+        x_sommet2 -> Int, l'abscisse + 1 case
+        y_sommet3 -> Int, l'ordonnée + 1 case
         couleurs -> Str, une couleur de type: "#FF00FF"
     """
     if k == 0:
@@ -587,6 +620,10 @@ def fichier_vers_dico(nom_fichier):
 
 def sauvegarder(indices, etat):
     """Dans 'elif sauvegarde'. Pour gérer l'interface graphique lors de la sauvegarde.
+    Paramètres:
+        indices -> List[List]
+        etat -> Dict
+             : {((0, 1), (0, 2)): 1, ...}
     """
     fltk.image(0, 0, "ressources/fond_d'ecran.gif",
                ancrage="nw", tag="fond")
@@ -858,7 +895,7 @@ def solveur(indices, etat, sommet, graphique):
     """Résout la grille actuelle et l'affiche. Peut afficher toutes les étapes
     graphiquement si graphique vaut True.
     Paramètres:
-        indices -> List
+        indices -> List[List]
         etat -> Dict
         sommet -> Tuple
         graphique -> Bool
