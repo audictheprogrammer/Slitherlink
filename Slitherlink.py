@@ -6,6 +6,15 @@ import fltk
 # Tache 1 - STRUCTURES DE DONNEES
 
 def est_trace(etat, seg):
+    """Indique si le segment est tracé.
+    Paramètres:
+        etat -> Dict
+             : {((0, 1), (0, 2)): 1, ...}
+        seg -> Tuple(Tuple)
+            : ((0, 0), (0, 1))
+    Return:
+        Bool
+    """
     seg_inv = seg[1], seg[0]
     if seg in etat and etat[seg] == 1:
         return True
@@ -15,6 +24,15 @@ def est_trace(etat, seg):
 
 
 def est_interdit(etat, seg):
+    """Indique si le segment 'seg' est interdit.
+    Paramètres:
+        etat -> Dict
+             : {((0, 1), (0, 2)): 1, ...}
+        seg -> Tuple(Tuple)
+            : ((0, 0), (0, 1))
+    Return:
+        Bool
+    """
     seg_inv = seg[1], seg[0]
     if seg in etat and etat[seg] == -1:
         return True
@@ -24,6 +42,15 @@ def est_interdit(etat, seg):
 
 
 def est_vierge(etat, seg):
+    """Indique si le segment 'seg' n'est ni tracé ni interdit.
+    Paramètres:
+        etat -> Dict
+             : {((0, 1), (0, 2)): 1, ...}
+        seg -> Tuple(Tuple)
+            : ((0, 0), (0, 1))
+    Return:
+        Bool
+    """
     seg_inv = seg[1], seg[0]
     if seg in etat or seg_inv in etat:
         return False
@@ -31,20 +58,36 @@ def est_vierge(etat, seg):
 
 
 def tracer_segment(etat, seg):
+    """Trace un segment et modifie 'etat'.
+    Paramètres:
+        etat -> Dict
+             : {((0, 1), (0, 2)): 1, ...}
+        seg -> Tuple(Tuple)
+            : ((0, 0), (0, 1))
+    """
     effacer_segment(etat, seg)
     etat[seg] = 1
 
 
 def interdire_segment(etat, seg):
+    """Interdit un segment et modifie 'etat'.
+    Paramètres:
+        etat -> Dict
+             : {((0, 1), (0, 2)): 1, ...}
+        seg -> Tuple(Tuple)
+            : ((0, 0), (0, 1))
+    """
     effacer_segment(etat, seg)
     etat[seg] = -1
 
 
 def effacer_segment(etat, seg):
-    """
-    Modifiant etat afin de représenter le fait que segment est maintenant vierge.
-    Attention, effacer un segment revient à retirer de l’information
-    du dictionnaire etat.
+    """Rend le segment vierge et modifie 'etat'.
+    Paramètres:
+        etat -> Dict
+             : {((0, 1), (0, 2)): 1, ...}
+        seg -> Tuple(Tuple)
+            : ((0, 0), (0, 1))
     """
     inv_seg = seg[1], seg[0]
     if seg in etat:
@@ -54,6 +97,18 @@ def effacer_segment(etat, seg):
 
 
 def fonction_voisins(sommet):
+    """Renvoie une liste de sommet qui sont voisins à 'sommet'.
+    Paramètres:
+        sommet -> Tuple
+               : (0, 1)
+    Return:
+        voisins: List[Tuple]
+    Exemples:
+        >>> fonction_voisins((0, 1))
+        [(1, 1), (-1, 1), (0, 2), (0, 0)]
+        >>> fonction_voisins((0, 2))
+        [(1, 2), (-1, 2), (0, 3), (0, 1)]
+    """
     i_sommet, j_sommet = sommet
     voisins = [(i_sommet + 1, j_sommet), (i_sommet - 1, j_sommet),
                (i_sommet, j_sommet + 1), (i_sommet, j_sommet - 1)]
@@ -66,6 +121,7 @@ def segments_tests(etat, sommet, fonction):
     Paramètres:
         etat    -> Dict: {((0, 1), (1, 1)): -1, ...}
         sommet  -> Tuple: (2, 1)
+        fonction -> function
     Return:
         lst -> List[Tuple(Tuple, Tuple)]
             : [((1, 1), (2, 1)), ((1, 1), (1, 2))]
@@ -217,7 +273,11 @@ def longueur_boucle(etat, seg):
 # Tache 3 - INTERFACE GRAPHIQUE
 
 def affiche_images(lst):
-    """Affiche toutes les images en utilisant une liste prédéfinie."""
+    """Affiche toutes les images en utilisant une liste prédéfinie.
+    Paramètres:
+        lst -> List[Dict]
+            : [{'xpos': 0, 'ypos': 0, 'nom': "ressources/fond_d'ecran_menu.gif",...]
+    """
     for dico in lst:
         fltk.image(dico["xpos"], dico["ypos"], dico["nom"], ancrage="nw")
     fltk.mise_a_jour()
@@ -254,7 +314,7 @@ def menus(page, lst):
 
 
 def clic_bouton(ev, absc, ordo, dimension):
-    """Indique si la zone a été cliqué.
+    """Indique si la zone a été cliquée.
     Paramètres:
         ev -> fltk.event
         absc, ordo -> Tuple(Int)
@@ -381,7 +441,7 @@ def calcul_sommets(taille_marge, taille_case, coef):
 
 
 def trace_fenetre(indices, taille_case, taille_marge):
-    """Fonction auxiliaire permettant de tracer les cases
+    """Fonction auxiliaire permettant de tracer les cases.
     Paramètres:
         indices -> List[List], permet de connaitre la taille de la grille.
         taille_case -> Int: 75
@@ -475,7 +535,7 @@ def dessine_indices(indices, etat, taille_case, taille_marge):
 
 
 def dessine_etat(indices, etat, taille_case, taille_marge):
-    """Efface puis retrace tous les segments
+    """Efface puis retrace tous les segments.
     Paramètres:
         indices -> List[List]
                 : [[None, None, None, None, 0, None], ...]
@@ -496,7 +556,6 @@ def dessine_etat(indices, etat, taille_case, taille_marge):
                 y_sommets.append(calcul_sommets(taille_marge, taille_case, (j + a)))
             for k in range(2):
                 if est_trace(etat, segments[k]):
-                    print(x_sommets[0], y_sommets[0], x_sommets[1], y_sommets[1])
                     trace_ligne(k, x_sommets[0], y_sommets[0], x_sommets[1], y_sommets[1], "#004A7F")
                 elif est_interdit(etat, segments[k]):
                     trace_ligne(k, x_sommets[0], y_sommets[0], x_sommets[1], y_sommets[1], "#FF0000")
@@ -589,7 +648,6 @@ def fichier_vers_dico(nom_fichier):
     Return:
         dico : {((0, 1), (0, 2)): 1, ...}
     """
-    print(nom_fichier)
     f = open(nom_fichier, "r")
     contenu = f.read()
     cles = []
@@ -690,7 +748,7 @@ def Slitherlink():
     {"xpos": 100, "ypos": 270, "nom": "ressources/barre.gif", "dim": (600, 60), "message": "inutile"}
     ]
     lst_condition = ["ClicGauche", "ClicDroit"]
-    print("Debut du jeu")
+    print("Début du jeu")
     fltk.cree_fenetre(800, 600)
     fenetre = True
     slitherlink = True
@@ -792,6 +850,7 @@ def Slitherlink():
                     grille = nom_fichier
                 etat_solution = applique_solveur(grille, True)
                 if etat_solution is not None:
+                    etat_solution = filtre_etat_solution(etat_solution)
                     dessine_etat(indices, etat_solution, taille_case, taille_marge)
                     t_pol = len(indices)*25
                     fltk.texte((lg + 250)//2, 265, "Bouuuh !!!", ancrage="center",
@@ -829,6 +888,7 @@ def Slitherlink():
                     grille = nom_fichier
                 etat_solution = applique_solveur(grille, False)
                 if etat_solution is not None:
+                    etat_solution = filtre_etat_solution(etat_solution)
                     dessine_etat(indices, etat_solution, taille_case, taille_marge)
                     t_pol = len(indices)*25
                     fltk.texte((lg + 250)//2, 265, "Bouuuh !!!", ancrage="center",
@@ -852,6 +912,21 @@ def Slitherlink():
 
 # Tache 4 - RECHERCHE DE SOLUTIONS
 
+def filtre_etat_solution(etat_solution):
+    """Fonction utilisé pour rendre la solution plus visible. Renvoie un
+    dictionnaire 'etat' sans les segments interdits.
+    Paramètres:
+        etat_solution -> Dict
+    Return:
+        etat_solution_filtre -> Dict
+    """
+    etat_solution_filtre = {}
+    for segment in etat_solution:
+        if etat_solution[segment] == 1:
+            etat_solution_filtre[segment] = 1
+    return etat_solution_filtre
+
+
 def verif_case_autour_sommet(indices, etat, sommet):
     """Sous fonction de solveur, vérifie si les indices sont respectés.
     """
@@ -869,8 +944,7 @@ def applique_solveur(grille, graphique):
     Paramètres:
         grille -> Str: "grille3.txt"
     Return
-        res -> Dict: etat
-        res -> None: Pas de solution
+        res -> Dict or None: La solution 'etat' ou pas de solution
     """
     etat_temporaire = {}
     indices = fichier_vers_liste(grille)
