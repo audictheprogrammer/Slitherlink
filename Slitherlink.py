@@ -1,7 +1,7 @@
-# Slitherlink game by Audic XU the best and Damien BENAMARI the almost best.
+#XU Audic
+#BENAMARI Damien
 
 import fltk
-
 
 # Tache 1 - STRUCTURES DE DONNEES
 
@@ -219,7 +219,7 @@ def partie_finie(indices, etat):
 
 
 def choix_segment_depart(indices, n):
-    """Sous fonction partie_finie. Choisit un sommmet pour être le sommet
+    """Sous fonction de partie_finie. Choisit un sommmet pour être le sommet
      de départ ou les sommets de départ.
     Paramètres:
         indices -> List[List]
@@ -285,6 +285,7 @@ def affiche_images(lst):
 
 def menus(page, lst):
     """
+    Affiche le menu choisi avec la liste 'lst' et le paramètre 'page'
     Paramètres:
         page -> Bool
         lst -> List[Dict]
@@ -722,194 +723,6 @@ def sauvegarder(indices, etat):
     f_indices.close()
     return False
 
-
-# Boucle principale
-def Slitherlink():
-    taille_case = 75
-    taille_marge = 40
-    lst_menu = [
-    {"xpos": 0, "ypos": 0, "nom": "ressources/fond_d'ecran_menu.gif", "dim": (800, 600), "message": "inutile"},
-    {"xpos": 300, "ypos": 195, "nom": "ressources/bouton_nouvelle_partie.gif", "dim": (200, 100), "message": "choix_grille"},
-    {"xpos": 300, "ypos": 330, "nom": "ressources/bouton_charger_partie.gif", "dim": (200, 100), "message": "charger_grille"},
-    {"xpos": 300, "ypos": 465, "nom": "ressources/bouton_quitter.gif", "dim": (200, 100), "message": "quitter"}
-    ]
-    lst_choix = [
-    {"xpos": 0, "ypos": 0, "nom": "ressources/fond_d'ecran.gif", "dim": (800, 600), "message": "inutile"},
-    {"xpos": 300, "ypos": 490, "nom": "ressources/bouton_menu.gif", "dim": (200, 100), "message": "menu"},
-    {"xpos": 40, "ypos": 215, "nom": "ressources/bouton_grille1_bisbis.gif", "dim": (150, 150), "message": "grille1.txt"},
-    {"xpos": 230, "ypos": 215, "nom": "ressources/bouton_grille2_bisbis.gif", "dim": (150, 150), "message": "grille2.txt"},
-    {"xpos": 420, "ypos": 215, "nom": "ressources/bouton_grille3_bisbis.gif", "dim": (150, 150), "message": "grille3.txt"},
-    {"xpos": 610, "ypos": 215, "nom": "ressources/bouton_grille4_bisbis.gif", "dim": (150, 150), "message": "grille4.txt"}
-        ]
-    lst_charger = [
-    {"xpos": 0, "ypos": 0, "nom": "ressources/fond_d'ecran.gif", "dim": (800, 600), "message": "inutile"},
-    {"xpos": 100, "ypos": 490, "nom": "ressources/bouton_menu.gif", "dim": (200, 100), "message": "menu"},
-    {"xpos": 500, "ypos": 490, "nom": "ressources/bouton_valider.gif", "dim": (200, 100), "message": "inutile"},
-    {"xpos": 100, "ypos": 270, "nom": "ressources/barre.gif", "dim": (600, 60), "message": "inutile"}
-    ]
-    lst_condition = ["ClicGauche", "ClicDroit"]
-    print("Début du jeu")
-    fltk.cree_fenetre(800, 600)
-    fenetre = True
-    slitherlink = True
-    menu = True
-    choix_grille = False
-    choix = None
-    charger_grille = False
-    partie = False
-    sauvegarde = False
-    while slitherlink:
-        if fenetre is False and partie is False:
-            fltk.cree_fenetre(800, 600)
-            fenetre = True
-        if menu:
-            affiche_images(lst_menu)
-            res = menus(menu, lst_menu)
-            if res == "choix_grille":
-                choix_grille = True
-                menu = False
-            elif res == "charger_grille":
-                charger_grille = True
-                menu = False
-            elif res == "quitter":
-                fltk.ferme_fenetre()
-                fenetre = False
-                menu = False
-                slitherlink = False
-        elif choix_grille:
-            affiche_images(lst_choix)
-            fltk.texte(200, 20, "Choix de la grille :", couleur="#4CFF00",
-               police="sketchy in snow", taille="50", tag="choix")
-            choix = menus(choix_grille, lst_choix)
-            nom_fichier = choix
-
-            if choix == "quitter":
-                choix_grille = False
-                slitherlink = False
-                fltk.ferme_fenetre()
-
-            elif choix == "menu":
-                choix_grille = False
-                menu = True
-
-            elif choix == "grille1.txt" or choix == "grille2.txt" or\
-                 choix == "grille3.txt" or choix == "grille4.txt":
-                indices = fichier_vers_liste(choix)
-                if indices is not False:
-                    choix_grille = False
-                    partie = True
-                    fenetre = False
-                    etat = {}
-                    fltk.ferme_fenetre()
-                if indices is False:
-                    fltk.texte(190, 100, "Grille invalide", couleur="#FF0000",
-                               police="sketchy in snow", taille="70", tag="erreur")
-                    fltk.attend_clic_gauche()
-
-        elif charger_grille:
-            affiche_images(lst_charger)
-            fltk.texte(75, 70, "Saisissez le nom du fichier :", couleur="#4CFF00",
-               police="sketchy in snow", taille="50", tag="choix")
-            charger = menus("charger_grille", lst_charger)
-            if charger == "quitter":
-                charger_grille = False
-                slitherlink = False
-                fltk.ferme_fenetre()
-            elif charger == "menu":
-                charger_grille = False
-                menu = True
-            else:
-                nom_fichier, etat_fichier = charger
-                indices = fichier_vers_liste(nom_fichier)
-                etat = fichier_vers_dico(etat_fichier)
-                if indices is not False:
-                    charger_grille = False
-                    partie = True
-                    fenetre = False
-                    fltk.ferme_fenetre()
-                if indices is False:
-                    fltk.texte(190, 150, "Grille invalide", couleur="#FF0000",
-                               police="sketchy in snow", taille="70", tag="erreur")
-                    fltk.attend_clic_gauche()
-
-        elif partie:
-            lg = len(indices[0]) * taille_case + 2 * taille_marge
-            lst_jeu = [{"xpos": lg + 25, "ypos": 40, "nom": "ressources/bouton_sauvegarder.gif", "dim": (200, 100), "message": ("sauvegarder", indices, etat)},
-                       {"xpos": lg + 25, "ypos": 160, "nom": "ressources/bouton_solution.gif", "dim": (200, 100), "message": "solution"},
-                       {"xpos": lg + 25, "ypos": 280, "nom": "ressources/bouton_solution_graphique.gif", "dim": (200, 100), "message": "solution_graphique"},
-                       {"xpos": lg + 15, "ypos": 400, "nom": "ressources/bouton_maison.gif", "dim": (100, 100), "message": "menu"},
-                       {"xpos": lg + 135, "ypos": 400, "nom": "ressources/bouton_eteindre.gif", "dim": (100, 100), "message": "quitter"}]
-            initialisation_fenetre(indices, etat, taille_case, taille_marge)
-            jouer = fonction_jeu(indices, etat, taille_case, taille_marge, lst_jeu, lst_condition, lg)
-            if jouer == "solution_graphique":
-                if choix is not None:
-                    if choix == "grille1.txt" or choix == "grille2.txt" or\
-                            choix == "grille3.txt" or choix == "grille4.txt":
-                        grille = choix
-                else:
-                    grille = nom_fichier
-                etat_solution = applique_solveur(grille, True)
-                if etat_solution is not None:
-                    etat_solution = filtre_etat_solution(etat_solution)
-                    dessine_etat(indices, etat_solution, taille_case, taille_marge)
-                    t_pol = len(indices)*25
-                    fltk.texte((lg + 250)//2, 265, "Bouuuh !!!", ancrage="center",
-                               couleur="#FF0000", police="sketchy in snow",
-                               taille=str(t_pol))
-                fltk.attend_clic_gauche()
-                fltk.ferme_fenetre()
-
-            if jouer == "quitter":
-                fltk.ferme_fenetre()
-                partie = False
-                slitherlink = False
-
-            if jouer == "menu":
-                fltk.ferme_fenetre()
-                partie = False
-                menu = True
-
-            if jouer == "victoire":
-                etat = {}
-                fltk.attend_clic_gauche()
-                fltk.ferme_fenetre()
-
-            if len(jouer) == 3:
-                fltk.ferme_fenetre()
-                sauvegarde = True
-                partie = False
-
-            if jouer == "solution":
-                if choix is not None:
-                    if choix == "grille1.txt" or choix == "grille2.txt" or\
-                            choix == "grille3.txt" or choix == "grille4.txt":
-                        grille = choix
-                else:
-                    grille = nom_fichier
-                etat_solution = applique_solveur(grille, False)
-                if etat_solution is not None:
-                    etat_solution = filtre_etat_solution(etat_solution)
-                    dessine_etat(indices, etat_solution, taille_case, taille_marge)
-                    t_pol = len(indices)*25
-                    fltk.texte((lg + 250)//2, 265, "Bouuuh !!!", ancrage="center",
-                               couleur="#FF0000", police="sketchy in snow",
-                               taille=str(t_pol))
-                fltk.attend_clic_gauche()
-                fltk.ferme_fenetre()
-
-        elif sauvegarde:
-            message, indices, etat = jouer
-            partie = sauvegarder(indices, etat)
-            sauvegarde = False
-            if partie is False:
-                slitherlink = False
-            else:
-                fenetre = False
-            fltk.ferme_fenetre()
-
-    print("Fin du jeu")
-
-
 # Tache 4 - RECHERCHE DE SOLUTIONS
 
 def filtre_etat_solution(etat_solution):
@@ -1021,6 +834,229 @@ def solveur(indices, etat, sommet, graphique):
                     effacer_segment(etat, (sommet, voisin))
         return False
 
+# Fonction principale
+def Slitherlink():
+    
+    #initialisation
+    taille_case = 75
+    taille_marge = 40
+    lst_menu = [
+    {"xpos": 0, "ypos": 0, "nom": "ressources/fond_d'ecran_menu.gif", "dim": (800, 600), "message": "inutile"},
+    {"xpos": 300, "ypos": 195, "nom": "ressources/bouton_nouvelle_partie.gif", "dim": (200, 100), "message": "choix_grille"},
+    {"xpos": 300, "ypos": 330, "nom": "ressources/bouton_charger_partie.gif", "dim": (200, 100), "message": "charger_grille"},
+    {"xpos": 300, "ypos": 465, "nom": "ressources/bouton_quitter.gif", "dim": (200, 100), "message": "quitter"}
+    ]
+    lst_choix = [
+    {"xpos": 0, "ypos": 0, "nom": "ressources/fond_d'ecran.gif", "dim": (800, 600), "message": "inutile"},
+    {"xpos": 300, "ypos": 490, "nom": "ressources/bouton_menu.gif", "dim": (200, 100), "message": "menu"},
+    {"xpos": 40, "ypos": 215, "nom": "ressources/bouton_grille1_bisbis.gif", "dim": (150, 150), "message": "grille1.txt"},
+    {"xpos": 230, "ypos": 215, "nom": "ressources/bouton_grille2_bisbis.gif", "dim": (150, 150), "message": "grille2.txt"},
+    {"xpos": 420, "ypos": 215, "nom": "ressources/bouton_grille3_bisbis.gif", "dim": (150, 150), "message": "grille3.txt"},
+    {"xpos": 610, "ypos": 215, "nom": "ressources/bouton_grille4_bisbis.gif", "dim": (150, 150), "message": "grille4.txt"}
+        ]
+    lst_charger = [
+    {"xpos": 0, "ypos": 0, "nom": "ressources/fond_d'ecran.gif", "dim": (800, 600), "message": "inutile"},
+    {"xpos": 100, "ypos": 490, "nom": "ressources/bouton_menu.gif", "dim": (200, 100), "message": "menu"},
+    {"xpos": 500, "ypos": 490, "nom": "ressources/bouton_valider.gif", "dim": (200, 100), "message": "inutile"},
+    {"xpos": 100, "ypos": 270, "nom": "ressources/barre.gif", "dim": (600, 60), "message": "inutile"}
+    ]
+    lst_condition = ["ClicGauche", "ClicDroit"]
+    print("Début du jeu")
+    fltk.cree_fenetre(800, 600)
+    fenetre = True
+    slitherlink = True
+    menu = True
+    choix_grille = False
+    choix = None
+    charger_grille = False
+    partie = False
+    sauvegarde = False
+    
+    #boucle principale    
+    while slitherlink:
+        
+        #crée une fenêtre si besoin
+        if fenetre is False and partie is False:
+            fltk.cree_fenetre(800, 600)
+            fenetre = True
+            
+        #menu principal
+        if menu:
+            affiche_images(lst_menu)
+            res = menus(menu, lst_menu)
+            if res == "choix_grille":
+                choix_grille = True
+                menu = False
+            elif res == "charger_grille":
+                charger_grille = True
+                menu = False
+            elif res == "quitter":
+                fltk.ferme_fenetre()
+                fenetre = False
+                menu = False
+                slitherlink = False
+                
+        #menu de choix de grille
+        elif choix_grille:
+            affiche_images(lst_choix)
+            fltk.texte(200, 20, "Choix de la grille :", couleur="#4CFF00",
+               police="sketchy in snow", taille="50", tag="choix")
+            choix = menus(choix_grille, lst_choix)
+            nom_fichier = choix
+            
+            #quitter
+            if choix == "quitter":
+                choix_grille = False
+                slitherlink = False
+                fltk.ferme_fenetre()
+                
+            #retour au menu
+            elif choix == "menu":
+                choix_grille = False
+                menu = True
+
+            #lance la partie avec la grille choisie
+            elif choix == "grille1.txt" or choix == "grille2.txt" or\
+                 choix == "grille3.txt" or choix == "grille4.txt":
+                indices = fichier_vers_liste(choix)
+                if indices is not False:
+                    choix_grille = False
+                    partie = True
+                    fenetre = False
+                    etat = {}
+                    fltk.ferme_fenetre()
+                #vérification que la grille soit valide
+                if indices is False:
+                    fltk.texte(190, 100, "Grille invalide", couleur="#FF0000",
+                               police="sketchy in snow", taille="70", tag="erreur")
+                    fltk.attend_clic_gauche()
+
+        #menu pour charger une grille
+        elif charger_grille:
+            affiche_images(lst_charger)
+            fltk.texte(75, 70, "Saisissez le nom du fichier :", couleur="#4CFF00",
+               police="sketchy in snow", taille="50", tag="choix")
+            charger = menus("charger_grille", lst_charger)
+            
+            #quitter
+            if charger == "quitter":
+                charger_grille = False
+                slitherlink = False
+                fltk.ferme_fenetre()
+            
+            #retour au menu
+            elif charger == "menu":
+                charger_grille = False
+                menu = True
+            #lance la partie avec la grille et l'état chargé
+            else:
+                nom_fichier, etat_fichier = charger
+                indices = fichier_vers_liste(nom_fichier)
+                etat = fichier_vers_dico(etat_fichier)
+                if indices is not False:
+                    charger_grille = False
+                    partie = True
+                    fenetre = False
+                    fltk.ferme_fenetre()
+                #vérfication que la grille soit valide
+                if indices is False:
+                    fltk.texte(190, 150, "Grille invalide", couleur="#FF0000",
+                               police="sketchy in snow", taille="70", tag="erreur")
+                    fltk.attend_clic_gauche()
+
+        #ecran de partie
+        elif partie:
+            
+            #initialisation
+            lg = len(indices[0]) * taille_case + 2 * taille_marge
+            lst_jeu = [{"xpos": lg + 25, "ypos": 40, "nom": "ressources/bouton_sauvegarder.gif", "dim": (200, 100), "message": ("sauvegarder", indices, etat)},
+                       {"xpos": lg + 25, "ypos": 160, "nom": "ressources/bouton_solution.gif", "dim": (200, 100), "message": "solution"},
+                       {"xpos": lg + 25, "ypos": 280, "nom": "ressources/bouton_solution_graphique.gif", "dim": (200, 100), "message": "solution_graphique"},
+                       {"xpos": lg + 15, "ypos": 400, "nom": "ressources/bouton_maison.gif", "dim": (100, 100), "message": "menu"},
+                       {"xpos": lg + 135, "ypos": 400, "nom": "ressources/bouton_eteindre.gif", "dim": (100, 100), "message": "quitter"}]
+            initialisation_fenetre(indices, etat, taille_case, taille_marge)
+            jouer = fonction_jeu(indices, etat, taille_case, taille_marge, lst_jeu, lst_condition, lg)
+            
+            #utilisation solveur graphique
+            if jouer == "solution_graphique":
+                if choix is not None:
+                    if choix == "grille1.txt" or choix == "grille2.txt" or\
+                            choix == "grille3.txt" or choix == "grille4.txt":
+                        grille = choix
+                else:
+                    grille = nom_fichier
+                    
+                etat_solution = applique_solveur(grille, True)
+                if etat_solution is not None:
+                    #affichage de la solution sans les segments interdits
+                    etat_solution = filtre_etat_solution(etat_solution)
+                    dessine_etat(indices, etat_solution, taille_case, taille_marge)
+                    t_pol = len(indices)*25
+                    #affichage d'un message pour dire qu'on est mauvais
+                    fltk.texte((lg + 250)//2, 265, "Bouuuh !!!", ancrage="center",
+                               couleur="#FF0000", police="sketchy in snow",
+                               taille=str(t_pol))
+                fltk.attend_clic_gauche()
+                fltk.ferme_fenetre()
+
+            #quitter la partie
+            if jouer == "quitter":
+                fltk.ferme_fenetre()
+                partie = False
+                slitherlink = False
+                
+            #retour au menu
+            if jouer == "menu":
+                fltk.ferme_fenetre()
+                partie = False
+                menu = True
+
+            #victoire
+            if jouer == "victoire":
+                etat = {}
+                fltk.attend_clic_gauche()
+                fltk.ferme_fenetre()
+            
+            #sauvegarde d'une partie
+            if len(jouer) == 3:
+                fltk.ferme_fenetre()
+                sauvegarde = True
+                partie = False
+
+            #utilisation solveur instantanné
+            if jouer == "solution":
+                if choix is not None:
+                    if choix == "grille1.txt" or choix == "grille2.txt" or\
+                            choix == "grille3.txt" or choix == "grille4.txt":
+                        grille = choix
+                else:
+                    grille = nom_fichier
+                    
+                etat_solution = applique_solveur(grille, False)
+                if etat_solution is not None:
+                    #affichage de la solution sans les segments interdits
+                    etat_solution = filtre_etat_solution(etat_solution)
+                    dessine_etat(indices, etat_solution, taille_case, taille_marge)
+                    t_pol = len(indices)*25
+                    #affichage d'un message pour dire qu'on est mauvais
+                    fltk.texte((lg + 250)//2, 265, "Bouuuh !!!", ancrage="center",
+                               couleur="#FF0000", police="sketchy in snow",
+                               taille=str(t_pol))
+                fltk.attend_clic_gauche()
+                fltk.ferme_fenetre()
+                
+        #sauvegarde la partie
+        elif sauvegarde:
+            message, indices, etat = jouer
+            partie = sauvegarder(indices, etat)
+            sauvegarde = False
+            if partie is False:
+                slitherlink = False
+            else:
+                fenetre = False
+            fltk.ferme_fenetre()
+
+    print("Fin du jeu")
 
 # Lance le jeu
 
